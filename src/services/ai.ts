@@ -41,27 +41,34 @@ export async function* sendMessageStream(history: ChatMessage[]) {
     return;
   }
 
-  const chatHistory = history.slice(0, -1).map(msg => ({
-    role: msg.role === 'user' ? 'user' : 'model',
-    parts: [{ text: msg.text }]
-  }));
+  try {
+    const chatHistory = history.slice(0, -1).map(msg => ({
+      role: msg.role === 'user' ? 'user' : 'model',
+      parts: [{ text: msg.text }]
+    }));
 
-  const chat = ai.chats.create({
-    model: "gemini-1.5-flash",
-    config: {
-      systemInstruction:
-        HEALTH_COACH_SYSTEM_INSTRUCTION +
-        "\n\nResearch Context: This assistant is part of a study on how LLMs improve the 'reflection-to-action' loop for health data. Prioritize explaining *why* a metric matters and *what* specific lifestyle change can address it.",
-    },
-    history: chatHistory,
-  });
+    const chat = ai.chats.create({
+      model: "gemini-1.5-flash",
+      config: {
+        systemInstruction:
+          HEALTH_COACH_SYSTEM_INSTRUCTION +
+          "\n\nResearch Context: This assistant is part of a study on how LLMs improve the 'reflection-to-action' loop for health data. Prioritize explaining *why* a metric matters and *what* specific lifestyle change can address it.",
+      },
+      history: chatHistory,
+    });
 
-  const lastMessage = history[history.length - 1].text;
-  const result = await chat.sendMessageStream({ message: lastMessage });
-  for await (const chunk of result) {
-    const chunkText = chunk.text;
-    if (chunkText) {
-      yield chunkText;
+    const lastMessage = history[history.length - 1].text;
+    const result = await chat.sendMessageStream({ message: lastMessage });
+    for await (const chunk of result) {
+      const chunkText = chunk.text;
+      if (chunkText) {
+        yield chunkText;
+      }
     }
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Unknown error while contacting Gemini.";
+    console.error("Gemini request failed:", error);
+    yield `Connection issue. Pulse AI offline.\n\nDetails: ${message}`;
   }
 }
