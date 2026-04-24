@@ -9,7 +9,10 @@ import { ChatMessage } from "../types";
 const envMeta = import.meta as ImportMeta & {
   env?: { VITE_GEMINI_API_KEY?: string; GEMINI_API_KEY?: string };
 };
-const apiKey = envMeta.env?.VITE_GEMINI_API_KEY ?? envMeta.env?.GEMINI_API_KEY;
+const apiKey =
+  envMeta.env?.VITE_GEMINI_API_KEY ??
+  envMeta.env?.GEMINI_API_KEY ??
+  __GEMINI_API_KEY__;
 
 const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
 
