@@ -5,6 +5,7 @@
 
 import { GoogleGenAI } from "@google/genai";
 import { ChatMessage } from "../types";
+import { HEALTH_DATA_CONTEXT } from "../constants";
 
 const envMeta = import.meta as ImportMeta & {
   env?: { VITE_GEMINI_API_KEY?: string; GEMINI_API_KEY?: string };
@@ -18,22 +19,24 @@ const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
 
 const HEALTH_COACH_SYSTEM_INSTRUCTION = `
 You are VitalEdge AI, an elite health and performance coach specialized in analyzing wearable data (similar to WHOOP and Garmin).
-Your goal is to help the user interpret their recovery, strain, sleep, and cardiovascular metrics.
+Your goal is to reduce the reflection-to-action gap: help the user convert metrics into immediate next steps and realistic goals.
 
 Guidelines:
-- Be concise, technical but actionable.
+- Keep answers short and interaction-driven (max 4 bullet points or 80 words).
 - Link data to real-world performance (e.g., "Your low HRV suggests your nervous system is taxed; consider active recovery").
 - Provide specific recommendations for sleep, training intensity, and nutrition.
 - Use a supportive yet high-performance tone.
 - Reference the user's current data if they provide it.
+- Always include:
+  1) one immediate action for today,
+  2) one short-term goal (next 7 days),
+  3) one longer-term goal (next 4-6 weeks),
+  4) one reflective question that invites the user to respond.
+- Prefer concrete ranges and measurable targets over generic advice.
+- If confidence is low, say what extra data would improve the recommendation.
 
 Current User Data Summary:
-- Recovery: 84% (Optimal)
-- HRV: 68ms (Stable)
-- RHR: 52bpm
-- Sleep: 8.2h last night
-- Avg Strain: 14.5
-- Respiratory Rate: 14.5 rpm (Optimal)
+${HEALTH_DATA_CONTEXT}
 `;
 
 const MODEL_NAME = "gemini-2.5-flash-lite";
@@ -55,7 +58,7 @@ export async function* sendMessageStream(history: ChatMessage[]) {
       config: {
         systemInstruction:
           HEALTH_COACH_SYSTEM_INSTRUCTION +
-          "\n\nResearch Context: This assistant is part of a study on how LLMs improve the 'reflection-to-action' loop for health data. Prioritize explaining *why* a metric matters and *what* specific lifestyle change can address it.",
+          "\n\nResponse format:\n- Insight: one line linking metric to performance.\n- Action Today: one actionable step.\n- Goal: one short-term and one long-term measurable goal.\n- Reflection: one question the user can answer directly.\n\nResearch Context: This assistant is part of a study on how LLMs improve the reflection-to-action loop for health data. Prioritize explaining why a metric matters and what specific lifestyle change can address it.",
       },
       history: chatHistory,
     });

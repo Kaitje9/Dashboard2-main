@@ -5,12 +5,17 @@
 
 import { motion } from "motion/react";
 import { Activity, Zap, Moon, Heart, Bell, Menu, User, ShieldCheck, Search, History, Users } from "lucide-react";
+import { useMemo, useState } from "react";
 import { MetricCard } from "./MetricCard";
 import { ActivityChart } from "./ActivityChart";
 import { AIPanel } from "./AIPanel";
 import { MOCK_METRICS, MOCK_DAILY_HISTORY } from "../constants";
 
 export function Dashboard() {
+  const [selectedMetric, setSelectedMetric] = useState<"strain" | "recovery">("recovery");
+  const [selectedRange, setSelectedRange] = useState<7 | 14 | 28>(14);
+  const chartData = useMemo(() => MOCK_DAILY_HISTORY.slice(-selectedRange), [selectedRange]);
+
   return (
     <div className="flex flex-col lg:flex-row h-screen bg-brand-bg text-brand-text overflow-hidden font-sans" id="main-dashboard-container">
       {/* Main Content Area */}
@@ -78,13 +83,52 @@ export function Dashboard() {
                                 <span className="w-1.5 h-1.5 rounded-full bg-brand-accent" /> Live synchronization: Active
                             </p>
                         </div>
-                        <div className="flex bg-[#0D0D0F] p-1 rounded-xl border border-brand-border">
-                            <button className="px-5 py-2 rounded-lg text-[10px] uppercase font-black tracking-widest text-brand-muted hover:text-white transition-colors">Strain</button>
-                            <button className="px-5 py-2 rounded-lg bg-brand-accent text-black text-[10px] uppercase font-black tracking-widest shadow-lg">Recovery</button>
+                        <div className="flex flex-col gap-2 items-end">
+                          <div className="flex bg-[#0D0D0F] p-1 rounded-xl border border-brand-border">
+                              <button
+                                onClick={() => setSelectedMetric("strain")}
+                                className={`px-5 py-2 rounded-lg text-[10px] uppercase font-black tracking-widest transition-colors ${
+                                  selectedMetric === "strain"
+                                    ? "bg-brand-accent text-black shadow-lg"
+                                    : "text-brand-muted hover:text-white"
+                                }`}
+                              >
+                                Strain
+                              </button>
+                              <button
+                                onClick={() => setSelectedMetric("recovery")}
+                                className={`px-5 py-2 rounded-lg text-[10px] uppercase font-black tracking-widest transition-colors ${
+                                  selectedMetric === "recovery"
+                                    ? "bg-brand-accent text-black shadow-lg"
+                                    : "text-brand-muted hover:text-white"
+                                }`}
+                              >
+                                Recovery
+                              </button>
+                          </div>
+                          <div className="flex bg-[#0D0D0F] p-1 rounded-xl border border-brand-border">
+                            {[7, 14, 28].map(range => (
+                              <button
+                                key={range}
+                                onClick={() => setSelectedRange(range as 7 | 14 | 28)}
+                                className={`px-3 py-1.5 rounded-lg text-[10px] uppercase font-black tracking-widest transition-colors ${
+                                  selectedRange === range
+                                    ? "bg-white/10 text-white"
+                                    : "text-brand-muted hover:text-white"
+                                }`}
+                              >
+                                {range === 28 ? "4W" : `${range}D`}
+                              </button>
+                            ))}
+                          </div>
                         </div>
                     </div>
                     <div className="flex-1">
-                        <ActivityChart data={MOCK_DAILY_HISTORY} metric="recovery" color="var(--color-brand-accent)" />
+                        <ActivityChart
+                          data={chartData}
+                          metric={selectedMetric}
+                          color={selectedMetric === "recovery" ? "var(--color-brand-accent)" : "#3E92F9"}
+                        />
                     </div>
                 </motion.section>
 
@@ -139,13 +183,7 @@ export function Dashboard() {
                 <MetricCard metric={MOCK_METRICS[2]} /> {/* HRV */}
                 <MetricCard metric={MOCK_METRICS[4]} /> {/* RHR */}
                 <MetricCard metric={MOCK_METRICS[5]} /> {/* Respiratory */}
-                <motion.div 
-                   whileHover={{ backgroundColor: "rgba(255,255,255,0.02)" }}
-                   className="bg-transparent border-2 border-brand-border border-dashed p-8 rounded-[24px] flex flex-col justify-center items-center gap-3 opacity-40 hover:opacity-100 transition-all cursor-pointer group"
-                >
-                    <div className="w-12 h-12 rounded-full border-2 border-brand-border flex items-center justify-center text-2xl font-light text-brand-muted group-hover:border-brand-accent group-hover:text-brand-accent transition-colors">+</div>
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-muted group-hover:text-brand-accent transition-colors">Extend Sensor Array</span>
-                </motion.div>
+                <MetricCard metric={MOCK_METRICS[6]} /> {/* Sleep Debt */}
             </div>
           </div>
         </div>

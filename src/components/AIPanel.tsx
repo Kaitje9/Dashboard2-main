@@ -8,11 +8,12 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Send, Bot, User, Loader2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { ChatMessage } from '../types';
+import { INITIAL_AI_GREETING } from '../constants';
 import { sendMessageStream } from '../services/ai';
 
 export function AIPanel() {
   const [messages, setMessages] = useState<ChatMessage[]>([
-    { role: 'model', text: "Good morning. Your recovery is high (84%), but I noticed your REM sleep was 15% lower than your 30-day average. Does that affect your training plans today?" }
+    { role: 'model', text: INITIAL_AI_GREETING }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
