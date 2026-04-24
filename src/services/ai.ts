@@ -33,7 +33,10 @@ Current User Data Summary:
 - RHR: 52bpm
 - Sleep: 8.2h last night
 - Avg Strain: 14.5
+- Respiratory Rate: 14.5 rpm (Optimal)
 `;
+
+const MODEL_NAME = "gemini-2.5-flash-lite";
 
 export async function* sendMessageStream(history: ChatMessage[]) {
   if (!ai) {
@@ -48,7 +51,7 @@ export async function* sendMessageStream(history: ChatMessage[]) {
     }));
 
     const chat = ai.chats.create({
-      model: "gemini-1.5-flash",
+      model: MODEL_NAME,
       config: {
         systemInstruction:
           HEALTH_COACH_SYSTEM_INSTRUCTION +
