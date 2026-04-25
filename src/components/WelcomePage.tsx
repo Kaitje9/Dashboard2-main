@@ -6,7 +6,7 @@ interface WelcomePageProps {
 
 export function WelcomePage({ onContinue }: WelcomePageProps) {
   return (
-    <div className="min-h-screen bg-[#050505] text-brand-text flex items-center justify-center px-6">
+    <div className="min-h-screen bg-brand-bg text-brand-text flex items-center justify-center px-6">
       <motion.section
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -15,7 +15,7 @@ export function WelcomePage({ onContinue }: WelcomePageProps) {
         <p className="text-[10px] uppercase tracking-[0.2em] font-black text-brand-accent mb-4">
           Research Study
         </p>
-        <h1 className="text-3xl md:text-4xl font-light tracking-tight text-white mb-5">
+        <h1 className="text-3xl md:text-4xl font-light tracking-tight text-brand-text mb-5">
           Welcome to the Reflection-to-Action Health Experience
         </h1>
         <div className="space-y-4 text-sm text-brand-muted leading-relaxed">

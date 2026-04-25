@@ -35,7 +35,7 @@ export function QuestionnairePage({ onSubmit, onBack }: QuestionnairePageProps) 
     profile.currentGoal;
 
   return (
-    <div className="min-h-screen bg-[#050505] text-brand-text px-6 py-8 md:py-12">
+    <div className="min-h-screen bg-brand-bg text-brand-text px-6 py-8 md:py-12">
       <motion.section
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -44,7 +44,7 @@ export function QuestionnairePage({ onSubmit, onBack }: QuestionnairePageProps) 
         <p className="text-[10px] uppercase tracking-[0.2em] font-black text-brand-accent mb-3">
           Participant Intake
         </p>
-        <h2 className="text-2xl md:text-3xl font-light text-white mb-6">Quick baseline questionnaire</h2>
+        <h2 className="text-2xl md:text-3xl font-light text-brand-text mb-6">Quick baseline questionnaire</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Field label="First name (optional)">
@@ -140,7 +140,7 @@ export function QuestionnairePage({ onSubmit, onBack }: QuestionnairePageProps) 
           <button
             type="button"
             onClick={onBack}
-            className="px-5 py-3 rounded-xl border border-brand-border text-xs uppercase tracking-[0.14em] font-black text-brand-muted hover:text-white transition-colors"
+            className="px-5 py-3 rounded-xl border border-brand-border text-xs uppercase tracking-[0.14em] font-black text-brand-muted hover:text-brand-text transition-colors"
           >
             Back
           </button>

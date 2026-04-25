@@ -64,7 +64,7 @@ export function AIPanel({ participantProfile }: AIPanelProps) {
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#111113] border-l border-brand-border" id="ai-panel">
+    <div className="flex flex-col h-full bg-brand-card border-l border-brand-border" id="ai-panel">
       <div className="p-6 border-b border-brand-border flex items-center gap-3">
         <div className="w-2 h-2 rounded-full bg-brand-accent animate-pulse shadow-[0_0_8px_rgba(229,249,62,0.6)]"></div>
         <h2 className="text-sm font-bold text-brand-text uppercase tracking-widest font-sans">Pulse Intelligence</h2>

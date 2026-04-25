@@ -35,7 +35,7 @@ export function MetricCard({
         
         <div className="relative mt-4 flex items-center justify-center">
           <svg className="w-40 h-40 transform -rotate-90">
-            <circle cx="80" cy="80" r="70" stroke="#1D1D20" strokeWidth="12" fill="transparent" />
+            <circle cx="80" cy="80" r="70" stroke="var(--color-brand-border)" strokeWidth="12" fill="transparent" />
             <motion.circle 
               cx="80" 
               cy="80" 
@@ -51,7 +51,7 @@ export function MetricCard({
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-6xl font-extralight text-white tracking-tighter">{metric.value}<span className="text-2xl opacity-40 ml-1">%</span></span>
+            <span className="text-6xl font-extralight text-brand-text tracking-tighter">{metric.value}<span className="text-2xl opacity-40 ml-1">%</span></span>
           </div>
         </div>
 
@@ -94,13 +94,13 @@ export function MetricCard({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => onOpenDetails?.(metric)}
-      className="bg-brand-card rounded-2xl p-6 border border-brand-border flex justify-between items-center group transition-all hover:bg-[#1A1A1D] hover:border-brand-accent/20 cursor-help relative overflow-hidden"
+      className="bg-brand-card rounded-2xl p-6 border border-brand-border flex justify-between items-center group transition-all hover:bg-brand-card hover:border-brand-accent/20 cursor-help relative overflow-hidden"
       id={`metric-card-${metric.id}`}
     >
       <div className="flex flex-col gap-1 z-10">
         <span className="text-[10px] uppercase font-black tracking-[0.15em] text-brand-muted">{metric.label}</span>
         <div className="flex items-baseline gap-1">
-          <span className="text-2xl font-light text-white tracking-tight">{metric.value}</span>
+          <span className="text-2xl font-light text-brand-text tracking-tight">{metric.value}</span>
           <span className="text-xs text-brand-muted font-mono">{metric.unit}</span>
         </div>
       </div>
@@ -126,7 +126,7 @@ export function MetricCard({
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
-            className="absolute inset-0 bg-[#1A1A1D] p-5 flex flex-col justify-center border-l-4 border-brand-accent z-20"
+            className="absolute inset-0 bg-brand-card p-5 flex flex-col justify-center border-l-4 border-brand-accent z-20"
           >
             <p className="text-[11px] text-brand-text font-medium leading-tight">{metric.description}</p>
           </motion.div>
