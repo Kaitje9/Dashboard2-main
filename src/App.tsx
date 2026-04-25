@@ -6,14 +6,16 @@
 import { Dashboard } from './components/Dashboard';
 import { WelcomePage } from './components/WelcomePage';
 import { QuestionnairePage } from './components/QuestionnairePage';
+import { ThankYouPage } from './components/ThankYouPage';
 import { useEffect, useState } from 'react';
-import { ParticipantProfile } from './types';
+import { ChatMessage, ParticipantProfile } from './types';
 
-type AppStep = 'welcome' | 'questionnaire' | 'dashboard';
+type AppStep = 'welcome' | 'questionnaire' | 'dashboard' | 'thankyou';
 
 export default function App() {
   const [step, setStep] = useState<AppStep>('welcome');
   const [participantProfile, setParticipantProfile] = useState<ParticipantProfile | null>(null);
+  const [transcript, setTranscript] = useState<ChatMessage[]>([]);
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     const stored = localStorage.getItem('theme');
     return stored === 'light' ? 'light' : 'dark';
@@ -39,11 +41,29 @@ export default function App() {
           onBack={() => setStep('welcome')}
           onSubmit={(profile) => {
             setParticipantProfile(profile);
+            setTranscript([]);
             setStep('dashboard');
           }}
         />
       )}
-      {step === 'dashboard' && <Dashboard participantProfile={participantProfile} />}
+      {step === 'dashboard' && (
+        <Dashboard
+          participantProfile={participantProfile}
+          onTranscriptChange={setTranscript}
+          onCompleteStudy={() => setStep('thankyou')}
+        />
+      )}
+      {step === 'thankyou' && (
+        <ThankYouPage
+          participantProfile={participantProfile}
+          transcript={transcript}
+          onRestart={() => {
+            setParticipantProfile(null);
+            setTranscript([]);
+            setStep('welcome');
+          }}
+        />
+      )}
     </div>
   );
 }

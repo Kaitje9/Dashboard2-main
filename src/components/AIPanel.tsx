@@ -13,9 +13,10 @@ import { sendMessageStream } from '../services/ai';
 
 interface AIPanelProps {
   participantProfile: ParticipantProfile | null;
+  onTranscriptChange?: (messages: ChatMessage[]) => void;
 }
 
-export function AIPanel({ participantProfile }: AIPanelProps) {
+export function AIPanel({ participantProfile, onTranscriptChange }: AIPanelProps) {
   const greeting = participantProfile?.firstName
     ? `Hi ${participantProfile.firstName}, ${INITIAL_AI_GREETING}`
     : INITIAL_AI_GREETING;
@@ -31,6 +32,10 @@ export function AIPanel({ participantProfile }: AIPanelProps) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  useEffect(() => {
+    onTranscriptChange?.(messages);
+  }, [messages, onTranscriptChange]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;

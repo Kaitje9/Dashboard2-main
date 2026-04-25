@@ -10,13 +10,15 @@ import { MetricCard } from "./MetricCard";
 import { ActivityChart } from "./ActivityChart";
 import { AIPanel } from "./AIPanel";
 import { MOCK_METRICS, MOCK_DAILY_HISTORY } from "../constants";
-import { HealthMetric, ParticipantProfile } from "../types";
+import { ChatMessage, HealthMetric, ParticipantProfile } from "../types";
 
 interface DashboardProps {
   participantProfile: ParticipantProfile | null;
+  onCompleteStudy: () => void;
+  onTranscriptChange: (messages: ChatMessage[]) => void;
 }
 
-export function Dashboard({ participantProfile }: DashboardProps) {
+export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptChange }: DashboardProps) {
   const [selectedMetric, setSelectedMetric] = useState<"strain" | "recovery">("recovery");
   const [selectedRange, setSelectedRange] = useState<7 | 14 | 28>(14);
   const [chartFocus, setChartFocus] = useState<"full" | "latest7">("full");
@@ -75,6 +77,13 @@ export function Dashboard({ participantProfile }: DashboardProps) {
               }`}
             >
               {showAssistant ? "Hide Coach" : "Show Coach"}
+            </button>
+            <button
+              type="button"
+              onClick={onCompleteStudy}
+              className="px-4 py-2 rounded-xl border border-brand-border text-[10px] uppercase tracking-[0.14em] font-black text-brand-muted hover:text-brand-text transition-colors"
+            >
+              Finish Study
             </button>
           </div>
         </header>
@@ -294,7 +303,7 @@ export function Dashboard({ participantProfile }: DashboardProps) {
       {/* AI Assistant Sidebar */}
       {showAssistant && (
         <aside className="w-full lg:w-[320px] xl:w-[360px] border-l border-brand-border bg-brand-bg" id="ai-sidebar-container">
-          <AIPanel participantProfile={participantProfile} />
+          <AIPanel participantProfile={participantProfile} onTranscriptChange={onTranscriptChange} />
         </aside>
       )}
 
