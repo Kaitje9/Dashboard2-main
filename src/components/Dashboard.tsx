@@ -4,17 +4,23 @@
  */
 
 import { motion } from "motion/react";
-import { Activity, Zap, Moon, Heart, Bell, Menu, User, ShieldCheck, Search, History, Users } from "lucide-react";
+import { Activity, Zap, Moon, Heart, Bell, Menu, User, ShieldCheck, Search, History, Users, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { MetricCard } from "./MetricCard";
 import { ActivityChart } from "./ActivityChart";
 import { AIPanel } from "./AIPanel";
 import { MOCK_METRICS, MOCK_DAILY_HISTORY } from "../constants";
+import { HealthMetric } from "../types";
 
 export function Dashboard() {
   const [selectedMetric, setSelectedMetric] = useState<"strain" | "recovery">("recovery");
   const [selectedRange, setSelectedRange] = useState<7 | 14 | 28>(14);
-  const chartData = useMemo(() => MOCK_DAILY_HISTORY.slice(-selectedRange), [selectedRange]);
+  const [chartFocus, setChartFocus] = useState<"full" | "latest7">("full");
+  const [activeMetricDetail, setActiveMetricDetail] = useState<HealthMetric | null>(null);
+  const chartData = useMemo(() => {
+    const rangeData = MOCK_DAILY_HISTORY.slice(-selectedRange);
+    return chartFocus === "latest7" ? rangeData.slice(-7) : rangeData;
+  }, [selectedRange, chartFocus]);
 
   return (
     <div className="flex flex-col lg:flex-row h-screen bg-brand-bg text-brand-text overflow-hidden font-sans" id="main-dashboard-container">
@@ -60,11 +66,11 @@ export function Dashboard() {
             {/* Primary Analysis Column */}
             <div className="w-full xl:w-[35%] flex flex-col gap-6">
                <div className="h-full flex flex-col">
-                 <MetricCard metric={MOCK_METRICS[0]} /> {/* Recovery Circle */}
+                 <MetricCard metric={MOCK_METRICS[0]} onOpenDetails={setActiveMetricDetail} /> {/* Recovery Circle */}
                </div>
                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
-                  <MetricCard metric={MOCK_METRICS[3]} /> {/* Sleep */}
-                  <MetricCard metric={MOCK_METRICS[1]} /> {/* Strain */}
+                  <MetricCard metric={MOCK_METRICS[3]} onOpenDetails={setActiveMetricDetail} /> {/* Sleep */}
+                  <MetricCard metric={MOCK_METRICS[1]} onOpenDetails={setActiveMetricDetail} /> {/* Strain */}
                </div>
             </div>
 
@@ -120,6 +126,24 @@ export function Dashboard() {
                                 {range === 28 ? "4W" : `${range}D`}
                               </button>
                             ))}
+                          </div>
+                          <div className="flex bg-[#0D0D0F] p-1 rounded-xl border border-brand-border">
+                            <button
+                              onClick={() => setChartFocus("full")}
+                              className={`px-3 py-1.5 rounded-lg text-[10px] uppercase font-black tracking-widest transition-colors ${
+                                chartFocus === "full" ? "bg-white/10 text-white" : "text-brand-muted hover:text-white"
+                              }`}
+                            >
+                              Trend
+                            </button>
+                            <button
+                              onClick={() => setChartFocus("latest7")}
+                              className={`px-3 py-1.5 rounded-lg text-[10px] uppercase font-black tracking-widest transition-colors ${
+                                chartFocus === "latest7" ? "bg-white/10 text-white" : "text-brand-muted hover:text-white"
+                              }`}
+                            >
+                              Last 7
+                            </button>
                           </div>
                         </div>
                     </div>
@@ -180,14 +204,58 @@ export function Dashboard() {
           <div className="pt-4">
             <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-muted mb-6 px-1">Tertiary Array</h3>
             <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <MetricCard metric={MOCK_METRICS[2]} /> {/* HRV */}
-                <MetricCard metric={MOCK_METRICS[4]} /> {/* RHR */}
-                <MetricCard metric={MOCK_METRICS[5]} /> {/* Respiratory */}
-                <MetricCard metric={MOCK_METRICS[6]} /> {/* Sleep Debt */}
+                <MetricCard metric={MOCK_METRICS[2]} onOpenDetails={setActiveMetricDetail} /> {/* HRV */}
+                <MetricCard metric={MOCK_METRICS[4]} onOpenDetails={setActiveMetricDetail} /> {/* RHR */}
+                <MetricCard metric={MOCK_METRICS[5]} onOpenDetails={setActiveMetricDetail} /> {/* Respiratory */}
+                <MetricCard metric={MOCK_METRICS[6]} onOpenDetails={setActiveMetricDetail} /> {/* Sleep Debt */}
             </div>
           </div>
         </div>
       </main>
+
+      {activeMetricDetail && (
+        <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm p-4 lg:p-10 flex items-end lg:items-center justify-center">
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="w-full max-w-2xl bg-[#121214] border border-brand-border rounded-[28px] p-8 relative"
+          >
+            <button
+              type="button"
+              onClick={() => setActiveMetricDetail(null)}
+              className="absolute top-5 right-5 p-2 rounded-lg text-brand-muted hover:text-white hover:bg-white/5 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-brand-muted font-black mb-3">Metric Deep Dive</p>
+            <h3 className="text-2xl font-light text-white mb-2">{activeMetricDetail.label}</h3>
+            <p className="text-sm text-brand-muted mb-6">{activeMetricDetail.description}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+              <div className="bg-brand-card border border-brand-border rounded-2xl p-4">
+                <p className="text-[10px] uppercase tracking-widest text-brand-muted font-black mb-2">Trend Signal</p>
+                <p className="text-sm text-white">{activeMetricDetail.trendNote ?? activeMetricDetail.insight}</p>
+              </div>
+              <div className="bg-brand-card border border-brand-border rounded-2xl p-4">
+                <p className="text-[10px] uppercase tracking-widest text-brand-muted font-black mb-2">Goal Impact</p>
+                <p className="text-sm text-white">{activeMetricDetail.goalImpact ?? "Supports your readiness and consistency targets."}</p>
+              </div>
+            </div>
+            <div className="bg-brand-card border border-brand-border rounded-2xl p-4">
+              <p className="text-[10px] uppercase tracking-widest text-brand-muted font-black mb-3">Built From</p>
+              <div className="flex flex-wrap gap-2">
+                {(activeMetricDetail.composition ?? ["Daily sensor inputs", "Historical baseline", "Trend analysis"]).map(part => (
+                  <span
+                    key={part}
+                    className="px-3 py-1.5 rounded-xl text-[10px] uppercase tracking-[0.08em] font-black bg-brand-border text-brand-text"
+                  >
+                    {part}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </motion.section>
+        </div>
+      )}
 
       {/* AI Assistant Sidebar */}
       <aside className="w-full lg:w-[320px] xl:w-[360px] border-l border-brand-border bg-[#050505]" id="ai-sidebar-container">

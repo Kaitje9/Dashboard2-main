@@ -68,6 +68,9 @@ export const MOCK_METRICS: HealthMetric[] = [
     status: latest.recovery >= 67 ? 'optimal' : latest.recovery >= 45 ? 'warning' : 'critical',
     description: 'A measure of your body’s readiness to take on strain, calculated from HRV, RHR, and sleep.',
     insight: 'Recovery is strongest after your two lowest-strain days this week.',
+    composition: ['HRV trend', 'Resting HR baseline', 'Sleep duration and consistency'],
+    goalImpact: 'Higher recovery supports quality high-intensity sessions and lowers overreach risk.',
+    trendNote: 'Recovery has climbed 11 points vs your prior 7-day average.',
   },
   {
     id: 'strain',
@@ -81,6 +84,9 @@ export const MOCK_METRICS: HealthMetric[] = [
     insight: `7-day training load is ${strainBalance >= 0 ? 'up' : 'down'} ${Math.abs(
       toOneDecimal(strainBalance)
     )} vs the previous week.`,
+    composition: ['Time in HR zones', 'Session duration', 'Day-to-day load consistency'],
+    goalImpact: 'Keeping strain progressive helps fitness gains without disrupting recovery.',
+    trendNote: 'Training load is trending lower this week, likely aiding recovery rebound.',
   },
   {
     id: 'hrv',
@@ -92,6 +98,9 @@ export const MOCK_METRICS: HealthMetric[] = [
     status: latest.hrv >= 62 ? 'optimal' : latest.hrv >= 55 ? 'warning' : 'critical',
     description: 'Heart Rate Variability reflects autonomic nervous system balance and recovery readiness.',
     insight: `7-day HRV average: ${toInteger(average(last7Days.map(day => day.hrv)))} ms.`,
+    composition: ['Nightly autonomic balance', 'Sleep quality', 'Accumulated stress and training load'],
+    goalImpact: 'A stable or rising HRV usually supports harder sessions and better adaptation.',
+    trendNote: 'HRV is up compared to your heavier-load weeks.',
   },
   {
     id: 'sleep',
@@ -103,6 +112,9 @@ export const MOCK_METRICS: HealthMetric[] = [
     status: latest.sleepHours >= 7.5 ? 'optimal' : latest.sleepHours >= 6.5 ? 'warning' : 'critical',
     description: 'Sleep duration and consistency across the week, weighted toward recovery quality.',
     insight: `${sleepDebtHours.toFixed(1)}h sleep debt accumulated over the last 7 days.`,
+    composition: ['Total sleep hours', 'Sleep consistency', 'Recovery-linked sleep debt'],
+    goalImpact: 'Improving sleep consistency unlocks better recovery and more reliable training outputs.',
+    trendNote: 'Sleep recovered strongly after two low-sleep nights early in the month.',
   },
   {
     id: 'rhr',
@@ -114,6 +126,9 @@ export const MOCK_METRICS: HealthMetric[] = [
     status: latest.rhr <= 53 ? 'optimal' : latest.rhr <= 57 ? 'warning' : 'critical',
     description: 'Your heart rate while at complete rest. Lower values generally indicate stronger aerobic recovery.',
     insight: `Lowest RHR this month: ${Math.min(...last28Days.map(day => day.rhr))} bpm.`,
+    composition: ['Cardiovascular efficiency', 'Recovery status', 'Stress and sleep quality'],
+    goalImpact: 'Lower and stable RHR supports endurance capacity and next-day readiness.',
+    trendNote: 'RHR is in its lowest zone of the 4-week block.',
   },
   {
     id: 'respiratory',
@@ -125,6 +140,9 @@ export const MOCK_METRICS: HealthMetric[] = [
     status: 'optimal',
     description: 'Number of breaths per minute during sleep. Elevated rates can indicate stress or illness.',
     insight: 'Breathing baseline is stable with low nightly variance.',
+    composition: ['Nightly respiration average', 'Variance from baseline', 'Stress/illness signal'],
+    goalImpact: 'Stable respiratory rate supports confidence in progressing training safely.',
+    trendNote: 'No abnormal respiratory spikes in the last 14 days.',
   },
   {
     id: 'sleepDebt',
@@ -136,6 +154,9 @@ export const MOCK_METRICS: HealthMetric[] = [
     status: sleepDebtHours <= 2 ? 'optimal' : sleepDebtHours <= 4 ? 'warning' : 'critical',
     description: 'The cumulative amount of sleep below your 8-hour target over the trailing 7 days.',
     insight: sleepDebtHours <= 2 ? 'Recovery reserve is healthy.' : 'Prioritize earlier bedtime for 2-3 nights.',
+    composition: ['Sleep target gap per night', '7-day accumulation', 'Recovery compensation need'],
+    goalImpact: 'Reducing sleep debt can quickly improve recovery scores and training tolerance.',
+    trendNote: sleepDebtHours <= 2 ? 'Sleep debt is controlled.' : 'Sleep debt is starting to limit upside.',
   },
 ];
 

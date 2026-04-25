@@ -8,7 +8,13 @@ import { TrendingDown, TrendingUp, Minus, Info } from "lucide-react";
 import { HealthMetric } from "../types";
 import { useState } from "react";
 
-export function MetricCard({ metric }: { metric: HealthMetric }) {
+export function MetricCard({
+  metric,
+  onOpenDetails,
+}: {
+  metric: HealthMetric;
+  onOpenDetails?: (metric: HealthMetric) => void;
+}) {
   const [isHovered, setIsHovered] = useState(false);
   const isRecovery = metric.id === 'recovery';
   
@@ -19,6 +25,7 @@ export function MetricCard({ metric }: { metric: HealthMetric }) {
         animate={{ opacity: 1, y: 0 }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
+        onClick={() => onOpenDetails?.(metric)}
         className="bg-brand-card rounded-[32px] p-8 border border-brand-border flex flex-col items-center justify-center relative overflow-hidden group cursor-help h-full"
         id={`metric-card-${metric.id}`}
       >
@@ -51,6 +58,16 @@ export function MetricCard({ metric }: { metric: HealthMetric }) {
         <div className="mt-8 bg-brand-accent/10 px-6 py-2 rounded-2xl border border-brand-accent/20">
           <span className="text-brand-accent text-[10px] font-black uppercase tracking-[0.1em]">System Primed</span>
         </div>
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+            onOpenDetails?.(metric);
+          }}
+          className="mt-3 text-[10px] text-brand-muted hover:text-brand-accent uppercase tracking-widest font-black transition-colors"
+        >
+          Open details
+        </button>
 
         <AnimatePresence>
           {isHovered && (
@@ -76,6 +93,7 @@ export function MetricCard({ metric }: { metric: HealthMetric }) {
       animate={{ opacity: 1, y: 0 }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={() => onOpenDetails?.(metric)}
       className="bg-brand-card rounded-2xl p-6 border border-brand-border flex justify-between items-center group transition-all hover:bg-[#1A1A1D] hover:border-brand-accent/20 cursor-help relative overflow-hidden"
       id={`metric-card-${metric.id}`}
     >
@@ -114,6 +132,16 @@ export function MetricCard({ metric }: { metric: HealthMetric }) {
           </motion.div>
         )}
       </AnimatePresence>
+      <button
+        type="button"
+        onClick={(event) => {
+          event.stopPropagation();
+          onOpenDetails?.(metric);
+        }}
+        className="absolute bottom-2 left-4 text-[10px] text-brand-muted hover:text-brand-accent uppercase tracking-widest font-black transition-colors z-30"
+      >
+        details
+      </button>
     </motion.div>
   );
 }

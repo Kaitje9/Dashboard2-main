@@ -13,6 +13,9 @@ export interface HealthMetric {
   status: 'optimal' | 'warning' | 'critical';
   description: string;
   insight: string;
+  composition?: string[];
+  goalImpact?: string;
+  trendNote?: string;
 }
 
 export interface DailyData {
