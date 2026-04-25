@@ -31,3 +31,14 @@ export interface ChatMessage {
   role: 'user' | 'model';
   text: string;
 }
+
+export interface ParticipantProfile {
+  firstName: string;
+  ageRange: string;
+  gender: string;
+  primarySports: string;
+  weeklySleepQuality: string;
+  activityLevel: string;
+  recoveryFeeling: string;
+  currentGoal: string;
+}

@@ -4,7 +4,7 @@
  */
 
 import { GoogleGenAI } from "@google/genai";
-import { ChatMessage } from "../types";
+import { ChatMessage, ParticipantProfile } from "../types";
 import { HEALTH_DATA_CONTEXT } from "../constants";
 
 const envMeta = import.meta as ImportMeta & {
@@ -38,7 +38,26 @@ ${HEALTH_DATA_CONTEXT}
 
 const MODEL_NAME = "gemini-2.5-flash-lite";
 
-export async function* sendMessageStream(history: ChatMessage[]) {
+function buildParticipantContext(profile: ParticipantProfile | null) {
+  if (!profile) return "";
+
+  return `
+Participant Profile:
+- Name: ${profile.firstName || "Not provided"}
+- Age range: ${profile.ageRange}
+- Gender: ${profile.gender || "Not provided"}
+- Primary sports: ${profile.primarySports}
+- Weekly sleep quality (self-report): ${profile.weeklySleepQuality}
+- Activity level: ${profile.activityLevel}
+- Current recovery feeling: ${profile.recoveryFeeling}
+- Main goal: ${profile.currentGoal}
+`.trim();
+}
+
+export async function* sendMessageStream(
+  history: ChatMessage[],
+  participantProfile: ParticipantProfile | null = null
+) {
   if (!ai) {
     yield "AI is not configured yet. Add `VITE_GEMINI_API_KEY` to your `.env.local` file and restart the dev server.";
     return;
@@ -55,6 +74,7 @@ export async function* sendMessageStream(history: ChatMessage[]) {
       config: {
         systemInstruction:
           HEALTH_COACH_SYSTEM_INSTRUCTION +
+          `\n\n${buildParticipantContext(participantProfile)}` +
           "\n\nResponse style:\n- 2-3 concise lines in natural language.\n- No section headings unless user asks.\n- Include one specific action and one measurable target.\n- Finish with one reflective question.\n\nResearch Context: This assistant is part of a study on how LLMs improve the reflection-to-action loop for health data. Prioritize explaining why a metric matters and what specific lifestyle change can address it.",
       },
       history: chatHistory,

@@ -7,13 +7,20 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Send, Bot, User, Loader2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import { ChatMessage } from '../types';
+import { ChatMessage, ParticipantProfile } from '../types';
 import { INITIAL_AI_GREETING } from '../constants';
 import { sendMessageStream } from '../services/ai';
 
-export function AIPanel() {
+interface AIPanelProps {
+  participantProfile: ParticipantProfile | null;
+}
+
+export function AIPanel({ participantProfile }: AIPanelProps) {
+  const greeting = participantProfile?.firstName
+    ? `Hi ${participantProfile.firstName}, ${INITIAL_AI_GREETING}`
+    : INITIAL_AI_GREETING;
   const [messages, setMessages] = useState<ChatMessage[]>([
-    { role: 'model', text: INITIAL_AI_GREETING }
+    { role: 'model', text: greeting }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -39,7 +46,7 @@ export function AIPanel() {
       
       setMessages(prev => [...prev, { role: 'model', text: '' }]);
 
-      const stream = sendMessageStream(newMessages);
+      const stream = sendMessageStream(newMessages, participantProfile);
       for await (const chunk of stream) {
         assistantResponse += chunk;
         setMessages(prev => {

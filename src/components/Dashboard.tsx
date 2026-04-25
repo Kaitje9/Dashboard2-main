@@ -10,9 +10,13 @@ import { MetricCard } from "./MetricCard";
 import { ActivityChart } from "./ActivityChart";
 import { AIPanel } from "./AIPanel";
 import { MOCK_METRICS, MOCK_DAILY_HISTORY } from "../constants";
-import { HealthMetric } from "../types";
+import { HealthMetric, ParticipantProfile } from "../types";
 
-export function Dashboard() {
+interface DashboardProps {
+  participantProfile: ParticipantProfile | null;
+}
+
+export function Dashboard({ participantProfile }: DashboardProps) {
   const [selectedMetric, setSelectedMetric] = useState<"strain" | "recovery">("recovery");
   const [selectedRange, setSelectedRange] = useState<7 | 14 | 28>(14);
   const [chartFocus, setChartFocus] = useState<"full" | "latest7">("full");
@@ -259,7 +263,7 @@ export function Dashboard() {
 
       {/* AI Assistant Sidebar */}
       <aside className="w-full lg:w-[320px] xl:w-[360px] border-l border-brand-border bg-[#050505]" id="ai-sidebar-container">
-        <AIPanel />
+        <AIPanel participantProfile={participantProfile} />
       </aside>
     </div>
   );
