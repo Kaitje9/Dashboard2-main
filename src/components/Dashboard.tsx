@@ -21,10 +21,15 @@ export function Dashboard({ participantProfile }: DashboardProps) {
   const [selectedRange, setSelectedRange] = useState<7 | 14 | 28>(14);
   const [chartFocus, setChartFocus] = useState<"full" | "latest7">("full");
   const [activeMetricDetail, setActiveMetricDetail] = useState<HealthMetric | null>(null);
+  const [showAssistant, setShowAssistant] = useState(false);
   const chartData = useMemo(() => {
     const rangeData = MOCK_DAILY_HISTORY.slice(-selectedRange);
     return chartFocus === "latest7" ? rangeData.slice(-7) : rangeData;
   }, [selectedRange, chartFocus]);
+  const participantName = participantProfile?.firstName?.trim() || "there";
+  const encouragement = participantProfile
+    ? `You reported feeling ${participantProfile.recoveryFeeling.toLowerCase()} today with ${participantProfile.weeklySleepQuality.toLowerCase()} sleep this week. Keep building toward: ${participantProfile.currentGoal}.`
+    : "You are building consistency. Small daily wins compound quickly when recovery and sleep stay aligned.";
 
   return (
     <div className="flex flex-col lg:flex-row h-screen bg-brand-bg text-brand-text overflow-hidden font-sans" id="main-dashboard-container">
@@ -36,7 +41,7 @@ export function Dashboard({ participantProfile }: DashboardProps) {
             <Menu className="w-5 h-5 lg:hidden" />
             <div className="flex flex-col">
               <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-muted mb-1">Status Report</span>
-              <h1 className="text-2xl font-light tracking-tight">Your health overview</h1>
+              <h1 className="text-2xl font-light tracking-tight">Hi {participantName}, your health overview</h1>
             </div>
           </div>
 
@@ -60,11 +65,36 @@ export function Dashboard({ participantProfile }: DashboardProps) {
                     <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-brand-accent rounded-full border border-brand-bg" />
                 </button>
             </div>
+            <button
+              type="button"
+              onClick={() => setShowAssistant(prev => !prev)}
+              className={`px-4 py-2 rounded-xl border text-[10px] uppercase tracking-[0.14em] font-black transition-colors ${
+                showAssistant
+                  ? "border-brand-accent text-brand-accent bg-brand-accent/10"
+                  : "border-brand-border text-brand-muted hover:text-white"
+              }`}
+            >
+              {showAssistant ? "Hide Coach" : "Show Coach"}
+            </button>
           </div>
         </header>
 
         {/* Dashboard Grid */}
         <div className="px-10 pb-10 space-y-10">
+          <motion.section
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-brand-card border border-brand-border rounded-[24px] p-6 md:p-8 flex flex-col md:flex-row gap-4 md:items-center md:justify-between"
+          >
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.2em] font-black text-brand-accent mb-2">Personal Brief</p>
+              <p className="text-sm text-brand-text leading-relaxed">{encouragement}</p>
+            </div>
+            <div className="px-4 py-2 rounded-xl bg-[#0D0D0F] border border-brand-border text-[10px] uppercase tracking-[0.14em] font-black text-brand-muted">
+              Sport Focus: {participantProfile?.primarySports || "General fitness"}
+            </div>
+          </motion.section>
+
           {/* Top Performance Row */}
           <div className="flex flex-col xl:flex-row gap-8">
             {/* Primary Analysis Column */}
@@ -262,9 +292,21 @@ export function Dashboard({ participantProfile }: DashboardProps) {
       )}
 
       {/* AI Assistant Sidebar */}
-      <aside className="w-full lg:w-[320px] xl:w-[360px] border-l border-brand-border bg-[#050505]" id="ai-sidebar-container">
-        <AIPanel participantProfile={participantProfile} />
-      </aside>
+      {showAssistant && (
+        <aside className="w-full lg:w-[320px] xl:w-[360px] border-l border-brand-border bg-[#050505]" id="ai-sidebar-container">
+          <AIPanel participantProfile={participantProfile} />
+        </aside>
+      )}
+
+      {!showAssistant && (
+        <button
+          type="button"
+          onClick={() => setShowAssistant(true)}
+          className="fixed bottom-5 right-5 z-50 px-4 py-3 rounded-xl bg-brand-accent text-black text-[10px] uppercase tracking-[0.14em] font-black shadow-2xl"
+        >
+          Open AI Coach
+        </button>
+      )}
     </div>
   );
 }
