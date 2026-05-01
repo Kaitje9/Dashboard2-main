@@ -1,4 +1,7 @@
 import { motion } from "motion/react";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
 interface WelcomePageProps {
   onContinue: () => void;
@@ -10,39 +13,41 @@ export function WelcomePage({ onContinue }: WelcomePageProps) {
       <motion.section
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-3xl rounded-2xl border border-brand-border bg-brand-card p-8 md:p-10 shadow-sm"
+        className="w-full max-w-4xl"
       >
-        <p className="text-xs uppercase tracking-[0.18em] font-semibold text-brand-accent mb-3">
-          Research Study
-        </p>
-        <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-brand-text mb-4">
-          Welcome to the Reflection-to-Action Health Experience
-        </h1>
-        <div className="space-y-3 text-sm text-brand-muted leading-relaxed">
-          <p>
-            This study explores how AI-supported feedback can help people translate health metrics
-            into practical behavior changes.
-          </p>
-          <p>
-            You will complete a short questionnaire, then interact with a personalized dashboard
-            and coach. Your responses are used only to tailor feedback during this session.
-          </p>
-          <p>
-            The process takes around 2-4 minutes and focuses on sleep, activity, recovery, and
-            training goals.
-          </p>
-        </div>
-        <div className="mt-7 flex items-center justify-between gap-4 border-t border-brand-border pt-5">
-          <span className="text-xs text-brand-muted">By continuing, you confirm informed participation.</span>
-          <button
-            type="button"
-            onClick={onContinue}
-            className="px-5 py-2.5 rounded-lg bg-brand-accent text-white text-xs font-semibold hover:brightness-95 transition-colors"
-          >
-            Start Questionnaire
-          </button>
-        </div>
+        <Card className="border-brand-border/80 bg-brand-card/95">
+          <CardHeader className="space-y-4">
+            <Badge variant="secondary" className="w-fit">Research Study</Badge>
+            <CardTitle className="text-3xl md:text-4xl font-semibold tracking-tight">
+              Reflection-to-Action Health Experience
+            </CardTitle>
+            <p className="text-sm text-brand-muted leading-relaxed max-w-2xl">
+              AI-supported feedback designed to turn health signals into concrete decisions. In this
+              session you complete a short intake and explore a personalized dashboard and coach.
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <InfoTile title="Duration" value="2-4 min" />
+              <InfoTile title="Focus" value="Sleep, Recovery, Load" />
+              <InfoTile title="Output" value="Personalized Coaching" />
+            </div>
+            <div className="flex items-center justify-between gap-4 border-t border-brand-border pt-5">
+              <span className="text-xs text-brand-muted">By continuing, you confirm informed participation.</span>
+              <Button onClick={onContinue}>Start Questionnaire</Button>
+            </div>
+          </CardContent>
+        </Card>
       </motion.section>
+    </div>
+  );
+}
+
+function InfoTile({ title, value }: { title: string; value: string }) {
+  return (
+    <div className="rounded-lg border border-brand-border bg-[#0d1526] px-4 py-3">
+      <p className="text-xs text-brand-muted">{title}</p>
+      <p className="text-sm font-semibold text-brand-text mt-1">{value}</p>
     </div>
   );
 }

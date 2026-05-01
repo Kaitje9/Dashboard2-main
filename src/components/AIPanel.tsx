@@ -10,6 +10,8 @@ import ReactMarkdown from 'react-markdown';
 import { ChatMessage, ParticipantProfile } from '../types';
 import { INITIAL_AI_GREETING } from '../constants';
 import { sendMessageStream } from '../services/ai';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
 
 interface AIPanelProps {
   participantProfile: ParticipantProfile | null;
@@ -77,17 +79,19 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
 
   return (
     <div className="flex flex-col h-full bg-brand-card" id="ai-panel">
-      <div className="px-4 py-3 border-b border-brand-border flex items-center justify-between bg-slate-50/80">
+      <div className="px-4 py-3 border-b border-brand-border flex items-center justify-between bg-[#0d1526]">
         <div className="flex items-center gap-2">
           {onClose && (
-            <button
+            <Button
               type="button"
               onClick={onClose}
-              className="w-8 h-8 rounded-md border border-brand-border text-brand-muted flex items-center justify-center"
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
               aria-label="Close chat panel"
             >
               <ChevronLeft className="w-4 h-4" />
-            </button>
+            </Button>
           )}
           <h2 className="text-sm font-semibold text-brand-text">AI Coach</h2>
         </div>
@@ -114,7 +118,7 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
                 msg.role === 'user'
                   ? 'bg-brand-accent text-white rounded-lg rounded-tr-sm font-medium shadow-sm'
                   : `text-brand-text rounded-lg rounded-tl-sm border border-brand-border ${
-                      isStreamingBubble ? 'bg-slate-50' : 'bg-white'
+                      isStreamingBubble ? 'bg-[#152038]' : 'bg-[#111a2c]'
                     }`
               }`}>
                 <div className="markdown-body chat-markdown">
@@ -127,7 +131,7 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
           ))}
           {isLoading && !messages[messages.length - 1].text && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-2 items-center">
-              <div className="bg-white p-3 rounded-lg rounded-tl-sm border border-brand-border flex items-center gap-2">
+              <div className="bg-[#111a2c] p-3 rounded-lg rounded-tl-sm border border-brand-border flex items-center gap-2">
                 <Loader2 className="w-3 h-3 text-brand-muted animate-spin" />
                 <span className="text-[10px] text-brand-muted uppercase font-bold">Thinking...</span>
               </div>
@@ -137,23 +141,25 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
         <div ref={bottomRef} />
       </div>
 
-      <div className="p-3 border-t border-brand-border bg-slate-50/70">
-        <div className="relative flex items-center h-11 rounded-md bg-white border border-brand-border px-2 shadow-sm">
-          <input
+      <div className="p-3 border-t border-brand-border bg-[#0d1526]">
+        <div className="relative">
+          <Input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
             placeholder="Ask about your data..."
-            className="w-full bg-transparent px-3 pr-12 text-[16px] text-brand-text focus:outline-none placeholder:text-brand-muted"
+            className="h-11 pr-12 bg-[#0b1220]"
           />
-          <button
+          <Button
             onClick={handleSend}
             disabled={isLoading}
-            className="absolute right-2 w-8 h-8 rounded-md bg-slate-50 border border-brand-border flex items-center justify-center text-brand-muted hover:text-brand-accent transition-colors disabled:opacity-50"
+            variant="ghost"
+            size="icon"
+            className="absolute right-1.5 top-1.5 h-8 w-8"
           >
             <span className="text-[10px]">⏎</span>
-          </button>
+          </Button>
         </div>
       </div>
     </div>

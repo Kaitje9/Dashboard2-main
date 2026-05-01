@@ -12,6 +12,10 @@ import { ActivityChart } from "./ActivityChart";
 import { AIPanel } from "./AIPanel";
 import { MOCK_METRICS, MOCK_DAILY_HISTORY } from "../constants";
 import { ChatMessage, HealthMetric, ParticipantProfile } from "../types";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 interface DashboardProps {
   participantProfile: ParticipantProfile | null;
@@ -43,69 +47,62 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
       <div className="max-w-[1380px] mx-auto px-6 py-6">
         <header className="flex items-start justify-between mb-6 border-b border-brand-border pb-5">
           <div>
-            <p className="text-sm text-brand-muted mb-1">Hi {participantName}</p>
+            <Badge variant="secondary" className="mb-2">Hi {participantName}</Badge>
             <h1 className="text-3xl md:text-4xl font-bold">{pageTitle}</h1>
           </div>
-          <button
-            type="button"
-            onClick={onCompleteStudy}
-            className="px-4 py-2 rounded-lg border border-brand-border text-sm text-brand-muted hover:text-brand-text hover:bg-brand-card transition-colors"
-          >
-            Finish
-          </button>
+          <Button type="button" onClick={onCompleteStudy} variant="outline">Finish</Button>
         </header>
 
         <div className="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-6">
           <main className="space-y-6">
-            <div className="flex gap-2">
-              <PageButton active={activePage === "today"} onClick={() => setActivePage("today")}>
-                Today
-              </PageButton>
-              <PageButton active={activePage === "fitness"} onClick={() => setActivePage("fitness")}>
-                Fitness
-              </PageButton>
-              <PageButton active={activePage === "biology"} onClick={() => setActivePage("biology")}>
-                Biology
-              </PageButton>
-            </div>
+            <Tabs value={activePage} onValueChange={(value) => setActivePage(value as "today" | "fitness" | "biology")}>
+              <TabsList>
+                <TabsTrigger value="today">Today</TabsTrigger>
+                <TabsTrigger value="fitness">Fitness</TabsTrigger>
+                <TabsTrigger value="biology">Biology</TabsTrigger>
+              </TabsList>
 
-            {activePage === "today" && (
-              <section className="space-y-4">
+              <TabsContent value="today" className="space-y-4">
                 <SectionTitle title="Daily Snapshot" subtitle="Last sync 09:24" />
-                <div className="bg-brand-card rounded-xl p-4 border border-brand-border shadow-sm">
+                <Card>
+                  <CardContent className="p-4">
                   <div className="grid grid-cols-3 gap-3">
                     <RingMeter label="Strain" value={strainPercent} color="#f59e0b" icon={<Zap className="w-4 h-4" />} />
                     <RingMeter label="Recovery" value={recoveryPercent} color="#65d645" icon={<Gauge className="w-4 h-4" />} />
                     <RingMeter label="Sleep" value={sleepPercent} color="#7488ff" icon={<BedDouble className="w-4 h-4" />} />
                   </div>
-                  <div className="mt-4 bg-slate-50 rounded-lg px-4 py-3 flex items-center justify-between border border-brand-border">
+                  <div className="mt-4 bg-[#0d1526] rounded-lg px-4 py-3 flex items-center justify-between border border-brand-border">
                     <div>
                       <p className="text-xs uppercase text-brand-muted">Readiness</p>
                       <p className="text-sm font-semibold">{snapshotStatus}</p>
                     </div>
                     <p className="text-lg font-semibold">{snapshotAverage}%</p>
                   </div>
-                </div>
+                  </CardContent>
+                </Card>
 
                 <SectionTitle title="Key Metrics" subtitle="Tap any card for details" />
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <MetricCard metric={MOCK_METRICS[3]} onOpenDetails={setActiveMetricDetail} />
                   <MetricCard metric={MOCK_METRICS[1]} onOpenDetails={setActiveMetricDetail} />
                 </div>
-              </section>
-            )}
+              </TabsContent>
 
-            {activePage === "fitness" && (
-              <section className="space-y-4">
+              <TabsContent value="fitness" className="space-y-4">
                 <SectionTitle title="Fitness Trends" subtitle="Load and readiness over time" />
-                <div className="bg-brand-card rounded-xl p-5 border border-brand-border shadow-sm">
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle>Performance Timeline</CardTitle>
+                    <CardDescription>Compare training load and recovery across windows.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-1">
                   <div className="flex flex-wrap items-center gap-2 mb-4">
-                    <PageButton active={selectedMetric === "strain"} onClick={() => setSelectedMetric("strain")}>Strain</PageButton>
-                    <PageButton active={selectedMetric === "recovery"} onClick={() => setSelectedMetric("recovery")}>Recovery</PageButton>
+                    <Button size="sm" variant={selectedMetric === "strain" ? "default" : "outline"} onClick={() => setSelectedMetric("strain")}>Strain</Button>
+                    <Button size="sm" variant={selectedMetric === "recovery" ? "default" : "outline"} onClick={() => setSelectedMetric("recovery")}>Recovery</Button>
                     {[7, 14, 28].map(range => (
-                      <PageButton key={range} active={selectedRange === range} onClick={() => setSelectedRange(range as 7 | 14 | 28)}>
+                      <Button key={range} size="sm" variant={selectedRange === range ? "secondary" : "ghost"} onClick={() => setSelectedRange(range as 7 | 14 | 28)}>
                         {range === 28 ? "4W" : `${range}D`}
-                      </PageButton>
+                      </Button>
                     ))}
                   </div>
                   <div className="h-[360px]">
@@ -115,12 +112,11 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
                       color={selectedMetric === "recovery" ? "var(--color-brand-accent)" : "#3E92F9"}
                     />
                   </div>
-                </div>
-              </section>
-            )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
 
-            {activePage === "biology" && (
-              <section className="space-y-4">
+              <TabsContent value="biology" className="space-y-4">
                 <SectionTitle title="Biology Metrics" subtitle="Recovery physiology and baseline indicators" />
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <MetricCard metric={MOCK_METRICS[2]} onOpenDetails={setActiveMetricDetail} />
@@ -128,8 +124,8 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
                   <MetricCard metric={MOCK_METRICS[5]} onOpenDetails={setActiveMetricDetail} />
                   <MetricCard metric={MOCK_METRICS[6]} onOpenDetails={setActiveMetricDetail} />
                 </div>
-              </section>
-            )}
+              </TabsContent>
+            </Tabs>
           </main>
 
           <aside className="bg-brand-card rounded-xl border border-brand-border overflow-hidden h-[calc(100dvh-120px)] sticky top-6 shadow-sm">
@@ -145,13 +141,15 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
             animate={{ opacity: 1, y: 0 }}
             className="w-full max-w-2xl bg-brand-card border border-brand-border rounded-xl p-6 relative shadow-xl"
           >
-            <button
+            <Button
               type="button"
               onClick={() => setActiveMetricDetail(null)}
-              className="absolute top-5 right-5 p-2 rounded-lg text-brand-muted hover:text-brand-text hover:bg-white/5 transition-colors"
+              variant="ghost"
+              size="icon"
+              className="absolute top-5 right-5"
             >
               <X className="w-4 h-4" />
-            </button>
+            </Button>
             <p className="text-[10px] uppercase tracking-[0.2em] text-brand-muted font-black mb-3">Metric Deep Dive</p>
             <h3 className="text-2xl font-light text-brand-text mb-2">{activeMetricDetail.label}</h3>
             <p className="text-sm text-brand-muted mb-6">{activeMetricDetail.description}</p>
@@ -186,20 +184,6 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
   );
 }
 
-function PageButton({ children, active, onClick }: { children: ReactNode; active: boolean; onClick: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-        active ? "bg-brand-accent text-white shadow-sm" : "bg-brand-card border border-brand-border text-brand-muted hover:text-brand-text hover:bg-slate-50"
-      }`}
-    >
-      {children}
-    </button>
-  );
-}
-
 function SectionTitle({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <div className="px-1">
@@ -222,7 +206,7 @@ function RingMeter({
 }) {
   const percentage = Math.max(0, Math.min(100, Math.round(value)));
   return (
-    <div className="rounded-lg border border-brand-border bg-white px-2 py-3 flex flex-col items-center gap-2 shadow-sm">
+    <div className="rounded-lg border border-brand-border bg-[#0d1526] px-2 py-3 flex flex-col items-center gap-2 shadow-sm">
       <div
         className="w-16 h-16 rounded-full grid place-items-center relative"
         style={{

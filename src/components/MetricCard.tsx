@@ -5,6 +5,8 @@
 
 import { TrendingDown, TrendingUp, Minus } from "lucide-react";
 import { HealthMetric } from "../types";
+import { Button } from "./ui/button";
+import { Card, CardContent } from "./ui/card";
 
 export function MetricCard({
   metric,
@@ -14,11 +16,12 @@ export function MetricCard({
   onOpenDetails?: (metric: HealthMetric) => void;
 }) {
   return (
-    <div
+    <Card
       onClick={() => onOpenDetails?.(metric)}
-      className="bg-brand-card rounded-xl p-5 border border-brand-border flex justify-between items-start cursor-pointer shadow-sm hover:shadow-md transition-shadow"
+      className="cursor-pointer hover:shadow-md transition-shadow"
       id={`metric-card-${metric.id}`}
     >
+      <CardContent className="p-5 flex justify-between items-start">
       <div className="flex flex-col gap-2">
         <span className="text-[11px] uppercase font-semibold tracking-wide text-brand-muted">{metric.label}</span>
         <div className="flex items-baseline gap-1.5">
@@ -41,17 +44,20 @@ export function MetricCard({
         <span className={`text-xs font-semibold ${metric.change >= 0 ? 'text-brand-accent' : 'text-rose-600'}`}>
           {metric.change > 0 ? '+' : ''}{metric.change}{metric.unit}%
         </span>
-        <button
+        <Button
           type="button"
           onClick={(event) => {
             event.stopPropagation();
             onOpenDetails?.(metric);
           }}
-          className="text-xs text-brand-muted hover:text-brand-text transition-colors"
+          variant="ghost"
+          size="sm"
+          className="h-auto py-1"
         >
           View details
-        </button>
+        </Button>
       </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

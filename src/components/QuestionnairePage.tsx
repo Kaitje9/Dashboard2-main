@@ -2,6 +2,11 @@ import { useState } from "react";
 import { motion } from "motion/react";
 import { ReactNode } from "react";
 import { ParticipantProfile } from "../types";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 
 interface QuestionnairePageProps {
   onSubmit: (profile: ParticipantProfile) => void;
@@ -39,19 +44,19 @@ export function QuestionnairePage({ onSubmit, onBack }: QuestionnairePageProps) 
       <motion.section
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-4xl mx-auto rounded-2xl border border-brand-border bg-brand-card p-7 md:p-9 shadow-sm"
+        className="w-full max-w-5xl mx-auto"
       >
-        <p className="text-xs uppercase tracking-[0.18em] font-semibold text-brand-accent mb-2">
-          Participant Intake
-        </p>
-        <h2 className="text-2xl md:text-3xl font-semibold text-brand-text mb-6">Quick baseline questionnaire</h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <Card>
+          <CardHeader className="space-y-3">
+            <Badge variant="secondary" className="w-fit">Participant Intake</Badge>
+            <CardTitle className="text-2xl md:text-3xl">Quick baseline questionnaire</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <Field label="First name (optional)">
-            <input
+            <Input
               value={profile.firstName}
               onChange={e => updateProfile("firstName", e.target.value)}
-              className="input-field"
               placeholder="Alex"
             />
           </Field>
@@ -70,18 +75,16 @@ export function QuestionnairePage({ onSubmit, onBack }: QuestionnairePageProps) 
             </select>
           </Field>
           <Field label="Gender identity (optional)">
-            <input
+            <Input
               value={profile.gender}
               onChange={e => updateProfile("gender", e.target.value)}
-              className="input-field"
               placeholder="Optional"
             />
           </Field>
           <Field label="Primary sport(s) *">
-            <input
+            <Input
               value={profile.primarySports}
               onChange={e => updateProfile("primarySports", e.target.value)}
-              className="input-field"
               placeholder="Running, strength training..."
             />
           </Field>
@@ -127,24 +130,23 @@ export function QuestionnairePage({ onSubmit, onBack }: QuestionnairePageProps) 
             </select>
           </Field>
           <Field label="Main goal for the next month *">
-            <input
+            <Input
               value={profile.currentGoal}
               onChange={e => updateProfile("currentGoal", e.target.value)}
-              className="input-field"
               placeholder="Improve 5k time, better sleep consistency..."
             />
           </Field>
         </div>
 
         <div className="mt-8 flex items-center justify-between gap-4 border-t border-brand-border pt-5">
-          <button
+          <Button
             type="button"
             onClick={onBack}
-            className="px-4 py-2.5 rounded-lg border border-brand-border text-sm font-medium text-brand-muted hover:text-brand-text hover:bg-slate-50 transition-colors"
+            variant="outline"
           >
             Back
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
             disabled={!isValid}
             onClick={() => {
@@ -152,11 +154,12 @@ export function QuestionnairePage({ onSubmit, onBack }: QuestionnairePageProps) 
               activeElement?.blur();
               onSubmit(profile);
             }}
-            className="px-5 py-2.5 rounded-lg bg-brand-accent text-white text-sm font-medium disabled:opacity-40"
           >
             Continue to Dashboard
-          </button>
+          </Button>
         </div>
+          </CardContent>
+        </Card>
       </motion.section>
     </div>
   );
@@ -165,7 +168,7 @@ export function QuestionnairePage({ onSubmit, onBack }: QuestionnairePageProps) 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="flex flex-col gap-2">
-      <span className="text-xs font-medium text-brand-muted">{label}</span>
+      <Label>{label}</Label>
       {children}
     </label>
   );
