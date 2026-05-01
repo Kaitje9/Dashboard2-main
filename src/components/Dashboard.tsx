@@ -40,16 +40,16 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
 
   return (
     <div className="min-h-[100dvh] bg-brand-bg text-brand-text font-sans" id="main-dashboard-container">
-      <div className="max-w-[1400px] mx-auto px-6 py-6">
-        <header className="flex items-start justify-between mb-6">
+      <div className="max-w-[1380px] mx-auto px-6 py-6">
+        <header className="flex items-start justify-between mb-6 border-b border-brand-border pb-5">
           <div>
             <p className="text-sm text-brand-muted mb-1">Hi {participantName}</p>
-            <h1 className="text-4xl font-semibold">{pageTitle}</h1>
+            <h1 className="text-3xl md:text-4xl font-bold">{pageTitle}</h1>
           </div>
           <button
             type="button"
             onClick={onCompleteStudy}
-            className="px-4 py-2 rounded-lg border border-brand-border text-sm text-brand-muted"
+            className="px-4 py-2 rounded-lg border border-brand-border text-sm text-brand-muted hover:text-brand-text hover:bg-brand-card transition-colors"
           >
             Finish
           </button>
@@ -72,13 +72,13 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
             {activePage === "today" && (
               <section className="space-y-4">
                 <SectionTitle title="Daily Snapshot" subtitle="Last sync 09:24" />
-                <div className="bg-brand-card rounded-xl p-4 border border-brand-border">
+                <div className="bg-brand-card rounded-xl p-4 border border-brand-border shadow-sm">
                   <div className="grid grid-cols-3 gap-3">
                     <RingMeter label="Strain" value={strainPercent} color="#f59e0b" icon={<Zap className="w-4 h-4" />} />
                     <RingMeter label="Recovery" value={recoveryPercent} color="#65d645" icon={<Gauge className="w-4 h-4" />} />
                     <RingMeter label="Sleep" value={sleepPercent} color="#7488ff" icon={<BedDouble className="w-4 h-4" />} />
                   </div>
-                  <div className="mt-4 bg-brand-bg rounded-lg px-4 py-3 flex items-center justify-between">
+                  <div className="mt-4 bg-slate-50 rounded-lg px-4 py-3 flex items-center justify-between border border-brand-border">
                     <div>
                       <p className="text-xs uppercase text-brand-muted">Readiness</p>
                       <p className="text-sm font-semibold">{snapshotStatus}</p>
@@ -98,7 +98,7 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
             {activePage === "fitness" && (
               <section className="space-y-4">
                 <SectionTitle title="Fitness Trends" subtitle="Load and readiness over time" />
-                <div className="bg-brand-card rounded-xl p-5 border border-brand-border">
+                <div className="bg-brand-card rounded-xl p-5 border border-brand-border shadow-sm">
                   <div className="flex flex-wrap items-center gap-2 mb-4">
                     <PageButton active={selectedMetric === "strain"} onClick={() => setSelectedMetric("strain")}>Strain</PageButton>
                     <PageButton active={selectedMetric === "recovery"} onClick={() => setSelectedMetric("recovery")}>Recovery</PageButton>
@@ -132,18 +132,18 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
             )}
           </main>
 
-          <aside className="bg-brand-card rounded-xl border border-brand-border overflow-hidden h-[calc(100dvh-120px)] sticky top-6">
+          <aside className="bg-brand-card rounded-xl border border-brand-border overflow-hidden h-[calc(100dvh-120px)] sticky top-6 shadow-sm">
             <AIPanel participantProfile={participantProfile} onTranscriptChange={onTranscriptChange} />
           </aside>
         </div>
       </div>
 
       {activeMetricDetail && (
-        <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm p-4 lg:p-10 flex items-end lg:items-center justify-center">
+        <div className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-[2px] p-4 lg:p-10 flex items-end lg:items-center justify-center">
           <motion.section
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="w-full max-w-2xl bg-brand-card border border-brand-border rounded-xl p-6 relative"
+            className="w-full max-w-2xl bg-brand-card border border-brand-border rounded-xl p-6 relative shadow-xl"
           >
             <button
               type="button"
@@ -157,21 +157,21 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
             <p className="text-sm text-brand-muted mb-6">{activeMetricDetail.description}</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
               <div className="bg-brand-card border border-brand-border rounded-2xl p-4">
-                <p className="text-[10px] uppercase tracking-widest text-brand-muted font-black mb-2">Trend Signal</p>
+              <p className="text-[10px] uppercase tracking-widest text-brand-muted font-semibold mb-2">Trend Signal</p>
                 <p className="text-sm text-brand-text">{activeMetricDetail.trendNote ?? activeMetricDetail.insight}</p>
               </div>
               <div className="bg-brand-card border border-brand-border rounded-2xl p-4">
-                <p className="text-[10px] uppercase tracking-widest text-brand-muted font-black mb-2">Goal Impact</p>
+              <p className="text-[10px] uppercase tracking-widest text-brand-muted font-semibold mb-2">Goal Impact</p>
                 <p className="text-sm text-brand-text">{activeMetricDetail.goalImpact ?? "Supports your readiness and consistency targets."}</p>
               </div>
             </div>
             <div className="bg-brand-card border border-brand-border rounded-2xl p-4">
-              <p className="text-[10px] uppercase tracking-widest text-brand-muted font-black mb-3">Built From</p>
+              <p className="text-[10px] uppercase tracking-widest text-brand-muted font-semibold mb-3">Built From</p>
               <div className="flex flex-wrap gap-2">
                 {(activeMetricDetail.composition ?? ["Daily sensor inputs", "Historical baseline", "Trend analysis"]).map(part => (
                   <span
                     key={part}
-                    className="px-3 py-1.5 rounded-xl text-[10px] uppercase tracking-[0.08em] font-black bg-brand-border text-brand-text"
+                    className="px-3 py-1.5 rounded-lg text-[10px] uppercase tracking-[0.08em] font-semibold bg-slate-100 text-brand-text border border-brand-border"
                   >
                     {part}
                   </span>
@@ -191,8 +191,8 @@ function PageButton({ children, active, onClick }: { children: ReactNode; active
     <button
       type="button"
       onClick={onClick}
-      className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
-        active ? "bg-brand-accent text-black" : "bg-brand-card border border-brand-border text-brand-muted"
+      className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+        active ? "bg-brand-accent text-white shadow-sm" : "bg-brand-card border border-brand-border text-brand-muted hover:text-brand-text hover:bg-slate-50"
       }`}
     >
       {children}
@@ -203,8 +203,8 @@ function PageButton({ children, active, onClick }: { children: ReactNode; active
 function SectionTitle({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <div className="px-1">
-      <h3 className="text-[11px] uppercase tracking-[0.24em] font-black text-brand-muted mb-1">{title}</h3>
-      <p className="text-[13px] text-brand-muted/90">{subtitle}</p>
+      <h3 className="text-[11px] uppercase tracking-[0.2em] font-semibold text-brand-muted mb-1">{title}</h3>
+      <p className="text-sm text-brand-muted">{subtitle}</p>
     </div>
   );
 }
@@ -222,7 +222,7 @@ function RingMeter({
 }) {
   const percentage = Math.max(0, Math.min(100, Math.round(value)));
   return (
-    <div className="rounded-lg border border-brand-border bg-brand-bg/60 px-2 py-3 flex flex-col items-center gap-2">
+    <div className="rounded-lg border border-brand-border bg-white px-2 py-3 flex flex-col items-center gap-2 shadow-sm">
       <div
         className="w-16 h-16 rounded-full grid place-items-center relative"
         style={{

@@ -14,28 +14,28 @@ interface ActivityChartProps {
 
 export function ActivityChart({ data, metric, color }: ActivityChartProps) {
   return (
-    <div className="w-full h-full mt-4" id={`chart-${metric}`}>
+    <div className="w-full h-full mt-2" id={`chart-${metric}`}>
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
           <defs>
             <linearGradient id={`gradient-${metric}`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={color} stopOpacity={0.4}/>
-              <stop offset="95%" stopColor={color} stopOpacity={0.05}/>
+              <stop offset="5%" stopColor={color} stopOpacity={0.3}/>
+              <stop offset="95%" stopColor={color} stopOpacity={0.04}/>
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#2A2A2E" opacity={0.5} />
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" opacity={0.9} />
           <XAxis 
             dataKey="date" 
             axisLine={false} 
             tickLine={false} 
-            tick={{ fill: '#9A9A9E', fontSize: 10, fontWeight: 700 }} 
+            tick={{ fill: '#64748b', fontSize: 11, fontWeight: 600 }} 
             dy={10}
           />
           <YAxis hide domain={['auto', 'auto']} />
           <Tooltip 
-            contentStyle={{ backgroundColor: '#161618', border: '1px solid #2A2A2E', borderRadius: '12px', fontSize: '11px', fontWeight: 600, color: '#F0F0F0' }}
+            contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '11px', fontWeight: 600, color: '#0f172a', boxShadow: '0 6px 20px rgba(15, 23, 42, 0.08)' }}
             itemStyle={{ color: color }}
-            cursor={{ stroke: '#2A2A2E', strokeWidth: 1 }}
+            cursor={{ stroke: '#cbd5e1', strokeWidth: 1 }}
           />
           <Area
             type="monotone"

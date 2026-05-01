@@ -16,13 +16,13 @@ export function MetricCard({
   return (
     <div
       onClick={() => onOpenDetails?.(metric)}
-      className="bg-brand-card rounded-xl p-5 border border-brand-border flex justify-between items-start cursor-pointer"
+      className="bg-brand-card rounded-xl p-5 border border-brand-border flex justify-between items-start cursor-pointer shadow-sm hover:shadow-md transition-shadow"
       id={`metric-card-${metric.id}`}
     >
       <div className="flex flex-col gap-2">
-        <span className="text-xs uppercase font-semibold tracking-wide text-brand-muted">{metric.label}</span>
+        <span className="text-[11px] uppercase font-semibold tracking-wide text-brand-muted">{metric.label}</span>
         <div className="flex items-baseline gap-1.5">
-          <span className="text-2xl font-semibold text-brand-text">{metric.value}</span>
+          <span className="text-2xl font-bold text-brand-text">{metric.value}</span>
           <span className="text-sm text-brand-muted">{metric.unit}</span>
         </div>
         <p className="text-sm text-brand-muted leading-snug max-w-[240px]">{metric.insight}</p>
@@ -38,7 +38,7 @@ export function MetricCard({
           {metric.trend === 'down' && <TrendingDown className="w-4 h-4" />}
           {metric.trend === 'stable' && <Minus className="w-4 h-4" />}
         </div>
-        <span className={`text-xs font-semibold ${metric.change >= 0 ? 'text-brand-accent' : 'text-[#F93E3E]'}`}>
+        <span className={`text-xs font-semibold ${metric.change >= 0 ? 'text-brand-accent' : 'text-rose-600'}`}>
           {metric.change > 0 ? '+' : ''}{metric.change}{metric.unit}%
         </span>
         <button
@@ -47,9 +47,9 @@ export function MetricCard({
             event.stopPropagation();
             onOpenDetails?.(metric);
           }}
-          className="text-xs text-brand-muted underline underline-offset-2"
+          className="text-xs text-brand-muted hover:text-brand-text transition-colors"
         >
-          details
+          View details
         </button>
       </div>
     </div>

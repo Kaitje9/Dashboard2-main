@@ -10,15 +10,15 @@ export function WelcomePage({ onContinue }: WelcomePageProps) {
       <motion.section
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-3xl rounded-[28px] border border-brand-border bg-brand-card p-10 md:p-12"
+        className="w-full max-w-3xl rounded-2xl border border-brand-border bg-brand-card p-8 md:p-10 shadow-sm"
       >
-        <p className="text-[10px] uppercase tracking-[0.2em] font-black text-brand-accent mb-4">
+        <p className="text-xs uppercase tracking-[0.18em] font-semibold text-brand-accent mb-3">
           Research Study
         </p>
-        <h1 className="text-3xl md:text-4xl font-light tracking-tight text-brand-text mb-5">
+        <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-brand-text mb-4">
           Welcome to the Reflection-to-Action Health Experience
         </h1>
-        <div className="space-y-4 text-sm text-brand-muted leading-relaxed">
+        <div className="space-y-3 text-sm text-brand-muted leading-relaxed">
           <p>
             This study explores how AI-supported feedback can help people translate health metrics
             into practical behavior changes.
@@ -32,12 +32,12 @@ export function WelcomePage({ onContinue }: WelcomePageProps) {
             training goals.
           </p>
         </div>
-        <div className="mt-8 flex items-center justify-between gap-4">
-          <span className="text-[11px] text-brand-muted">By continuing, you confirm informed participation.</span>
+        <div className="mt-7 flex items-center justify-between gap-4 border-t border-brand-border pt-5">
+          <span className="text-xs text-brand-muted">By continuing, you confirm informed participation.</span>
           <button
             type="button"
             onClick={onContinue}
-            className="px-6 py-3 rounded-xl bg-brand-accent text-black text-xs uppercase tracking-[0.14em] font-black hover:brightness-105 transition-all"
+            className="px-5 py-2.5 rounded-lg bg-brand-accent text-white text-xs font-semibold hover:brightness-95 transition-colors"
           >
             Start Questionnaire
           </button>

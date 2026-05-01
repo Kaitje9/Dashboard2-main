@@ -55,22 +55,22 @@ export function ThankYouPage({ participantProfile, transcript, onRestart }: Than
       <motion.section
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-3xl rounded-[28px] border border-brand-border bg-brand-card p-8 md:p-10"
+        className="w-full max-w-3xl rounded-2xl border border-brand-border bg-brand-card p-8 md:p-10 shadow-sm"
       >
-        <p className="text-[10px] uppercase tracking-[0.2em] font-black text-brand-accent mb-3">Thank You</p>
-        <h1 className="text-3xl md:text-4xl font-light text-brand-text mb-4">Thanks for participating!</h1>
+        <p className="text-xs uppercase tracking-[0.18em] font-semibold text-brand-accent mb-2">Thank You</p>
+        <h1 className="text-3xl md:text-4xl font-semibold text-brand-text mb-3">Thanks for participating!</h1>
         <p className="text-sm text-brand-muted leading-relaxed mb-6">
           You can now download your questionnaire responses and the chatbot conversation transcript for your research records.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <button type="button" onClick={downloadQuestionnaireTxt} className="px-4 py-3 rounded-xl border border-brand-border text-xs uppercase tracking-[0.12em] font-black text-brand-text">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
+          <button type="button" onClick={downloadQuestionnaireTxt} className="px-4 py-2.5 rounded-lg border border-brand-border text-sm font-medium text-brand-text hover:bg-slate-50 transition-colors">
             Download Questionnaire
           </button>
-          <button type="button" onClick={downloadTranscriptTxt} className="px-4 py-3 rounded-xl border border-brand-border text-xs uppercase tracking-[0.12em] font-black text-brand-text">
+          <button type="button" onClick={downloadTranscriptTxt} className="px-4 py-2.5 rounded-lg border border-brand-border text-sm font-medium text-brand-text hover:bg-slate-50 transition-colors">
             Download Transcript
           </button>
-          <button type="button" onClick={downloadJson} className="px-4 py-3 rounded-xl bg-brand-accent text-black text-xs uppercase tracking-[0.12em] font-black">
+          <button type="button" onClick={downloadJson} className="px-4 py-2.5 rounded-lg bg-brand-accent text-white text-sm font-medium">
             Download Full JSON
           </button>
         </div>
@@ -79,7 +79,7 @@ export function ThankYouPage({ participantProfile, transcript, onRestart }: Than
           <button
             type="button"
             onClick={onRestart}
-            className="px-5 py-3 rounded-xl border border-brand-border text-xs uppercase tracking-[0.12em] font-black text-brand-muted hover:text-brand-text transition-colors"
+            className="px-4 py-2.5 rounded-lg border border-brand-border text-sm font-medium text-brand-muted hover:text-brand-text hover:bg-slate-50 transition-colors"
           >
             Start New Participant
           </button>

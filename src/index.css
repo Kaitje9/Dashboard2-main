@@ -5,13 +5,13 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   
-  --color-brand-accent: #FF6B6B;
-  --color-brand-bg: #000000;
-  --color-brand-card: #141416;
-  --color-brand-border: #232326;
-  --color-brand-text: #FFFFFF;
-  --color-brand-muted: #71717A;
-  --color-brand-input-bg: #0d0d0f;
+  --color-brand-accent: #2563eb;
+  --color-brand-bg: #f8fafc;
+  --color-brand-card: #ffffff;
+  --color-brand-border: #e2e8f0;
+  --color-brand-text: #0f172a;
+  --color-brand-muted: #64748b;
+  --color-brand-input-bg: #ffffff;
 }
 
 @layer base {
@@ -31,12 +31,12 @@
 }
 
 :root[data-theme="light"] {
-  --color-brand-accent: #33c18f;
-  --color-brand-bg: #f5f6fa;
+  --color-brand-accent: #2563eb;
+  --color-brand-bg: #f8fafc;
   --color-brand-card: #ffffff;
-  --color-brand-border: #d7dbe3;
-  --color-brand-text: #101317;
-  --color-brand-muted: #5f6470;
+  --color-brand-border: #e2e8f0;
+  --color-brand-text: #0f172a;
+  --color-brand-muted: #64748b;
   --color-brand-input-bg: #ffffff;
 }
 
@@ -47,7 +47,7 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-brand-bg);
+  background: #eef2f7;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -56,7 +56,7 @@
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3A3A3E;
+  background: #94a3b8;
 }
 
 .markdown-body {
@@ -110,14 +110,14 @@
 
 .input-field {
   width: 100%;
-  border-radius: 0.75rem;
+  border-radius: 0.625rem;
   border: 1px solid var(--color-brand-border);
   background: var(--color-brand-input-bg);
   color: var(--color-brand-text);
   font-size: 16px;
   padding: 0.7rem 0.85rem;
   outline: none;
-  transition: border-color 120ms ease, box-shadow 120ms ease;
+  transition: border-color 120ms ease, box-shadow 120ms ease, background 120ms ease;
 }
 
 @media (min-width: 768px) {
@@ -132,7 +132,8 @@
 
 .input-field:focus {
   border-color: color-mix(in oklab, var(--color-brand-accent) 45%, var(--color-brand-border));
-  box-shadow: 0 0 0 2px color-mix(in oklab, var(--color-brand-accent) 20%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-brand-accent) 20%, transparent);
+  background: #fff;
 }
 
 select.input-field {

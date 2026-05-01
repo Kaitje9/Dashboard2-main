@@ -39,14 +39,14 @@ export function QuestionnairePage({ onSubmit, onBack }: QuestionnairePageProps) 
       <motion.section
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-4xl mx-auto rounded-[28px] border border-brand-border bg-brand-card p-8 md:p-10"
+        className="w-full max-w-4xl mx-auto rounded-2xl border border-brand-border bg-brand-card p-7 md:p-9 shadow-sm"
       >
-        <p className="text-[10px] uppercase tracking-[0.2em] font-black text-brand-accent mb-3">
+        <p className="text-xs uppercase tracking-[0.18em] font-semibold text-brand-accent mb-2">
           Participant Intake
         </p>
-        <h2 className="text-2xl md:text-3xl font-light text-brand-text mb-6">Quick baseline questionnaire</h2>
+        <h2 className="text-2xl md:text-3xl font-semibold text-brand-text mb-6">Quick baseline questionnaire</h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <Field label="First name (optional)">
             <input
               value={profile.firstName}
@@ -136,11 +136,11 @@ export function QuestionnairePage({ onSubmit, onBack }: QuestionnairePageProps) 
           </Field>
         </div>
 
-        <div className="mt-8 flex items-center justify-between gap-4">
+        <div className="mt-8 flex items-center justify-between gap-4 border-t border-brand-border pt-5">
           <button
             type="button"
             onClick={onBack}
-            className="px-5 py-3 rounded-xl border border-brand-border text-xs uppercase tracking-[0.14em] font-black text-brand-muted hover:text-brand-text transition-colors"
+            className="px-4 py-2.5 rounded-lg border border-brand-border text-sm font-medium text-brand-muted hover:text-brand-text hover:bg-slate-50 transition-colors"
           >
             Back
           </button>
@@ -152,7 +152,7 @@ export function QuestionnairePage({ onSubmit, onBack }: QuestionnairePageProps) 
               activeElement?.blur();
               onSubmit(profile);
             }}
-            className="px-6 py-3 rounded-xl bg-brand-accent text-black text-xs uppercase tracking-[0.14em] font-black disabled:opacity-40"
+            className="px-5 py-2.5 rounded-lg bg-brand-accent text-white text-sm font-medium disabled:opacity-40"
           >
             Continue to Dashboard
           </button>
@@ -165,7 +165,7 @@ export function QuestionnairePage({ onSubmit, onBack }: QuestionnairePageProps) 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="flex flex-col gap-2">
-      <span className="text-[10px] uppercase tracking-[0.12em] font-black text-brand-muted">{label}</span>
+      <span className="text-xs font-medium text-brand-muted">{label}</span>
       {children}
     </label>
   );
