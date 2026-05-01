@@ -4,7 +4,7 @@
  */
 
 import { motion } from "motion/react";
-import { Moon, ShieldCheck, X, Home, BarChart3, HeartPulse, Bot, ChevronDown } from "lucide-react";
+import { Moon, ShieldCheck, X, Home, BarChart3, HeartPulse, Bot, ChevronDown, Zap, BedDouble, Gauge } from "lucide-react";
 import { useMemo, useState } from "react";
 import { ReactNode } from "react";
 import { MetricCard } from "./MetricCard";
@@ -70,11 +70,35 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
 
           {activePage === "today" && (
             <div className="space-y-8">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <MetricCard metric={MOCK_METRICS[0]} onOpenDetails={setActiveMetricDetail} />
-                <MetricCard metric={MOCK_METRICS[3]} onOpenDetails={setActiveMetricDetail} />
-                <MetricCard metric={MOCK_METRICS[1]} onOpenDetails={setActiveMetricDetail} />
+              <SectionTitle title="Daily Snapshot" subtitle="Last sync 09:24" />
+              <div className="bg-brand-card border border-brand-border rounded-[24px] p-5 shadow-[0_6px_18px_rgba(16,19,23,0.06)]">
+                <div className="grid grid-cols-3 gap-2 sm:gap-4">
+                  <RingMeter
+                    label="Belasting"
+                    value={Number(MOCK_METRICS[1].value)}
+                    max={21}
+                    color="#f59e0b"
+                    icon={<Zap className="w-3.5 h-3.5" />}
+                  />
+                  <RingMeter
+                    label="Herstel"
+                    value={Number(MOCK_METRICS[0].value)}
+                    max={100}
+                    color="#65d645"
+                    suffix="%"
+                    icon={<Gauge className="w-3.5 h-3.5" />}
+                  />
+                  <RingMeter
+                    label="Slaap"
+                    value={Number(MOCK_METRICS[3].value)}
+                    max={10}
+                    color="#7488ff"
+                    icon={<BedDouble className="w-3.5 h-3.5" />}
+                  />
+                </div>
               </div>
+
+              <SectionTitle title="Coaching Highlights" subtitle="Context and interpretation" />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <motion.div 
                     whileHover={{ y: -5 }}
@@ -116,11 +140,19 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
                     </div>
                 </motion.div>
               </div>
+
+              <SectionTitle title="Key Metrics" subtitle="Tap any card for deeper explanation" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <MetricCard metric={MOCK_METRICS[0]} onOpenDetails={setActiveMetricDetail} />
+                <MetricCard metric={MOCK_METRICS[3]} onOpenDetails={setActiveMetricDetail} />
+                <MetricCard metric={MOCK_METRICS[1]} onOpenDetails={setActiveMetricDetail} />
+              </div>
             </div>
           )}
 
           {activePage === "fitness" && (
             <div className="space-y-8">
+              <SectionTitle title="Fitness Trends" subtitle="Load and readiness over time" />
               {/* Trends & Insights Column */}
               <motion.section 
                 initial={{ opacity: 0, scale: 0.98 }}
@@ -202,6 +234,7 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
                 </div>
               </motion.section>
 
+              <SectionTitle title="Load Detail" subtitle="Current load and sleep debt impact" />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <MetricCard metric={MOCK_METRICS[1]} onOpenDetails={setActiveMetricDetail} />
                 <MetricCard metric={MOCK_METRICS[6]} onOpenDetails={setActiveMetricDetail} />
@@ -211,7 +244,7 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
 
           {activePage === "biology" && (
             <div className="space-y-6">
-              <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-muted mb-2 px-1">Biology Metrics</h3>
+              <SectionTitle title="Biology Metrics" subtitle="Recovery physiology and baseline indicators" />
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
                   <MetricCard metric={MOCK_METRICS[2]} onOpenDetails={setActiveMetricDetail} />
                   <MetricCard metric={MOCK_METRICS[4]} onOpenDetails={setActiveMetricDetail} />
@@ -341,5 +374,51 @@ function TabButton({
       {icon}
       <span>{label}</span>
     </button>
+  );
+}
+
+function SectionTitle({ title, subtitle }: { title: string; subtitle: string }) {
+  return (
+    <div className="px-1">
+      <h3 className="text-[11px] uppercase tracking-[0.24em] font-black text-brand-muted mb-1">{title}</h3>
+      <p className="text-[13px] text-brand-muted/90">{subtitle}</p>
+    </div>
+  );
+}
+
+function RingMeter({
+  label,
+  value,
+  max,
+  color,
+  icon,
+  suffix = "",
+}: {
+  label: string;
+  value: number;
+  max: number;
+  color: string;
+  icon: ReactNode;
+  suffix?: string;
+}) {
+  const percentage = Math.max(0, Math.min(100, Math.round((value / max) * 100)));
+  return (
+    <div className="rounded-2xl border border-brand-border bg-brand-bg/60 px-2 py-3 sm:px-3 sm:py-4 flex flex-col items-center gap-2">
+      <div
+        className="w-20 h-20 rounded-full grid place-items-center relative"
+        style={{
+          background: `conic-gradient(${color} ${percentage}%, #e7e9ee ${percentage}% 100%)`,
+        }}
+      >
+        <div className="absolute inset-[7px] rounded-full bg-brand-card" />
+        <div className="relative flex flex-col items-center">
+          <span className="text-[18px] font-semibold leading-none">{Math.round(value)}{suffix}</span>
+        </div>
+      </div>
+      <div className="flex items-center gap-1.5 text-brand-muted">
+        {icon}
+        <span className="text-[11px] font-semibold">{label}</span>
+      </div>
+    </div>
   );
 }
