@@ -4,17 +4,17 @@
  */
 
 import { motion } from "motion/react";
-import { X, Zap, BedDouble, Gauge } from "lucide-react";
-import { useMemo, useState } from "react";
-import { ReactNode } from "react";
-import { MetricCard } from "./MetricCard";
-import { ActivityChart } from "./ActivityChart";
+import { X } from "lucide-react";
+import { useState } from "react";
+import { MetricCard as LegacyMetricCard } from "./MetricCard";
 import { AIPanel } from "./AIPanel";
-import { MOCK_METRICS, MOCK_DAILY_HISTORY } from "../constants";
+import { MOCK_METRICS } from "../constants";
 import { ChatMessage, HealthMetric, ParticipantProfile } from "../types";
-import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import { MetricCard } from "./metrics/MetricCard";
+import { EditorialHeader } from "./layout/EditorialHeader";
+import { TodayTab } from "./tabs/TodayTab";
+import { DailyRecommendation } from "./coach/DailyRecommendation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 interface DashboardProps {
@@ -24,114 +24,126 @@ interface DashboardProps {
 }
 
 export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptChange }: DashboardProps) {
-  const [selectedMetric, setSelectedMetric] = useState<"strain" | "recovery">("recovery");
-  const [selectedRange, setSelectedRange] = useState<7 | 14 | 28>(14);
   const [activeMetricDetail, setActiveMetricDetail] = useState<HealthMetric | null>(null);
-  const [activePage, setActivePage] = useState<"today" | "fitness" | "biology">("today");
-  const chartData = useMemo(() => {
-    return MOCK_DAILY_HISTORY.slice(-selectedRange);
-  }, [selectedRange]);
-  const participantName = participantProfile?.firstName?.trim() || "there";
-  const pageTitle = activePage === "today" ? "Today" : activePage === "fitness" ? "Fitness" : "Biology";
-  const strainMetric = MOCK_METRICS.find(metric => metric.id === "strain");
-  const recoveryMetric = MOCK_METRICS.find(metric => metric.id === "recovery");
-  const sleepMetric = MOCK_METRICS.find(metric => metric.id === "sleep");
-  const strainPercent = Math.round((Number(strainMetric?.value ?? 0) / 21) * 100);
-  const recoveryPercent = Math.round(Number(recoveryMetric?.value ?? 0));
-  const sleepPercent = Math.round((Number(sleepMetric?.value ?? 0) / 10) * 100);
-  const snapshotAverage = Math.round((strainPercent + recoveryPercent + sleepPercent) / 3);
-  const snapshotStatus = snapshotAverage >= 70 ? "Strong daily readiness" : snapshotAverage >= 50 ? "Moderate readiness" : "Low readiness";
+  const [activePage, setActivePage] = useState<"today" | "recovery" | "sleep" | "activity">("today");
+  const participantName = participantProfile?.firstName?.trim();
+
+  const hrvMetric = MOCK_METRICS.find(metric => metric.id === "hrv");
+  const rhrMetric = MOCK_METRICS.find(metric => metric.id === "rhr");
 
   return (
     <div className="h-[100dvh] overflow-hidden bg-brand-bg text-brand-text font-sans" id="main-dashboard-container">
       <div className="max-w-[1800px] h-full mx-auto px-3 md:px-4 py-4 flex flex-col">
-        <header className="flex items-start justify-between mb-5 border-b border-brand-border/80 pb-4 shrink-0">
-          <div>
-            <Badge variant="secondary" className="mb-2">Good evening, {participantName}</Badge>
-            <h1 className="font-editorial text-4xl md:text-5xl font-medium">{pageTitle}</h1>
-          </div>
-          <Button type="button" onClick={onCompleteStudy} variant="outline" className="rounded-xl">Finish</Button>
+        <header className="mb-0 shrink-0">
+          <EditorialHeader name={participantName} />
         </header>
 
-        <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] 2xl:grid-cols-[1fr_340px] gap-5 flex-1 min-h-0">
-          <main className="space-y-6 overflow-y-auto pr-1">
-            <Tabs value={activePage} onValueChange={(value) => setActivePage(value as "today" | "fitness" | "biology")}>
-              <TabsList>
-                <TabsTrigger value="today">Today</TabsTrigger>
-                <TabsTrigger value="fitness">Fitness</TabsTrigger>
-                <TabsTrigger value="biology">Biology</TabsTrigger>
-              </TabsList>
+        <Tabs
+          value={activePage}
+          onValueChange={(value) => setActivePage(value as "today" | "recovery" | "sleep" | "activity")}
+          className="flex-1 min-h-0 flex flex-col"
+        >
+          <div className="mb-4 shrink-0">
+            <TabsList className="w-full justify-start">
+              <TabsTrigger value="today">Today</TabsTrigger>
+              <TabsTrigger value="recovery">Recovery</TabsTrigger>
+              <TabsTrigger value="sleep">Sleep</TabsTrigger>
+              <TabsTrigger value="activity">Activity</TabsTrigger>
+            </TabsList>
+          </div>
 
-              <TabsContent value="today" className="space-y-4">
-                <SectionTitle title="Daily Snapshot" subtitle="Last sync 09:24" />
-                <Card>
-                  <CardContent className="p-4">
-                  <div className="grid grid-cols-3 gap-3">
-                    <RingMeter label="Strain" value={strainPercent} color="#ff8b5e" icon={<Zap className="w-4 h-4" />} />
-                    <RingMeter label="Recovery" value={recoveryPercent} color="#61d49e" icon={<Gauge className="w-4 h-4" />} />
-                    <RingMeter label="Sleep" value={sleepPercent} color="#7488ff" icon={<BedDouble className="w-4 h-4" />} />
-                  </div>
-                  <div className="mt-4 bg-[#333842] rounded-xl px-4 py-3 flex items-center justify-between border border-brand-border">
-                    <div>
-                      <p className="text-xs uppercase text-brand-muted">Readiness</p>
-                      <p className="text-sm font-semibold">{snapshotStatus}</p>
-                    </div>
-                    <p className="font-editorial text-2xl font-medium">{snapshotAverage}%</p>
-                  </div>
-                  </CardContent>
-                </Card>
-
-                <SectionTitle title="Key Metrics" subtitle="Tap any card for details" />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <MetricCard metric={MOCK_METRICS[3]} onOpenDetails={setActiveMetricDetail} />
-                  <MetricCard metric={MOCK_METRICS[1]} onOpenDetails={setActiveMetricDetail} />
-                </div>
+          <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] 2xl:grid-cols-[1fr_340px] gap-5 flex-1 min-h-0 items-start">
+            <main className="space-y-4 min-h-0 overflow-y-auto pr-1">
+              <TabsContent value="today" className="space-y-4 mt-0">
+                <TodayTab metrics={MOCK_METRICS} />
               </TabsContent>
 
-              <TabsContent value="fitness" className="space-y-4">
-                <SectionTitle title="Fitness Trends" subtitle="Load and readiness over time" />
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle>Performance Timeline</CardTitle>
-                    <CardDescription>Compare training load and recovery across windows.</CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-1">
-                  <div className="flex flex-wrap items-center gap-2 mb-4">
-                    <Button size="sm" className="rounded-lg" variant={selectedMetric === "strain" ? "default" : "outline"} onClick={() => setSelectedMetric("strain")}>Strain</Button>
-                    <Button size="sm" className="rounded-lg" variant={selectedMetric === "recovery" ? "default" : "outline"} onClick={() => setSelectedMetric("recovery")}>Recovery</Button>
-                    {[7, 14, 28].map(range => (
-                      <Button key={range} size="sm" className="rounded-lg" variant={selectedRange === range ? "secondary" : "ghost"} onClick={() => setSelectedRange(range as 7 | 14 | 28)}>
-                        {range === 28 ? "4W" : `${range}D`}
-                      </Button>
-                    ))}
-                  </div>
-                  <div className="h-[360px]">
-                    <ActivityChart
-                      data={chartData}
-                      metric={selectedMetric}
-                      color={selectedMetric === "recovery" ? "#7ac8a0" : "#cf8b65"}
+              <TabsContent value="recovery" className="space-y-4 mt-0">
+                <section>
+                  <h2>Recovery metrics</h2>
+                  <p className="lead">
+                    Daily recovery state based on autonomic signals and cardiovascular rest response.
+                  </p>
+                </section>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {hrvMetric && (
+                    <MetricCard
+                      label={hrvMetric.label}
+                      value={hrvMetric.value}
+                      unit={hrvMetric.unit}
+                      trend={mapTrend(hrvMetric.trend)}
+                      delta={signedDelta(hrvMetric)}
+                      deltaSuffix={hrvMetric.unit}
+                      baseline={buildBaselineText(hrvMetric)}
+                      unusual={hrvMetric.unusual}
+                      sparklineData={hrvMetric.sparkline}
+                      baselineRange={hrvMetric.baselineRange}
+                      sentence={hrvMetric.sentence}
+                      onClick={() => setActiveMetricDetail(hrvMetric)}
                     />
-                  </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="biology" className="space-y-4">
-                <SectionTitle title="Biology Metrics" subtitle="Recovery physiology and baseline indicators" />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <MetricCard metric={MOCK_METRICS[2]} onOpenDetails={setActiveMetricDetail} />
-                  <MetricCard metric={MOCK_METRICS[4]} onOpenDetails={setActiveMetricDetail} />
-                  <MetricCard metric={MOCK_METRICS[5]} onOpenDetails={setActiveMetricDetail} />
-                  <MetricCard metric={MOCK_METRICS[6]} onOpenDetails={setActiveMetricDetail} />
+                  )}
+                  {rhrMetric && (
+                    <MetricCard
+                      label={rhrMetric.label}
+                      value={rhrMetric.value}
+                      unit={rhrMetric.unit}
+                      trend={mapTrend(rhrMetric.trend)}
+                      delta={signedDelta(rhrMetric)}
+                      deltaSuffix={rhrMetric.unit}
+                      baseline={buildBaselineText(rhrMetric)}
+                      unusual={rhrMetric.unusual}
+                      sparklineData={rhrMetric.sparkline}
+                      baselineRange={rhrMetric.baselineRange}
+                      sentence={rhrMetric.sentence}
+                      onClick={() => setActiveMetricDetail(rhrMetric)}
+                    />
+                  )}
                 </div>
               </TabsContent>
-            </Tabs>
-          </main>
 
-          <aside className="panel-surface rounded-2xl overflow-hidden h-full min-h-0">
-            <AIPanel participantProfile={participantProfile} onTranscriptChange={onTranscriptChange} />
-          </aside>
-        </div>
+              <TabsContent value="sleep" className="space-y-4">
+                <SectionTitle title="Sleep metrics" subtitle="Sleep quality, architecture, and restorative consistency" />
+                <MetricGrid metrics={MOCK_METRICS.filter((metric) => metric.category === "sleep")} onOpenDetails={setActiveMetricDetail} />
+              </TabsContent>
+
+              <TabsContent value="activity" className="space-y-4">
+                <SectionTitle title="Activity metrics" subtitle="Daily load, capacity, and energy output" />
+                <MetricGrid metrics={MOCK_METRICS.filter((metric) => metric.category === "activity")} onOpenDetails={setActiveMetricDetail} />
+              </TabsContent>
+            </main>
+
+            <aside className="space-y-3 h-full min-h-0 flex flex-col">
+              {activePage === "today" ? (
+                <>
+                  <DailyRecommendation />
+                  <div className="panel-surface rounded-2xl overflow-hidden flex-1 min-h-0">
+                    <AIPanel participantProfile={participantProfile} onTranscriptChange={onTranscriptChange} />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="panel-surface rounded-2xl overflow-hidden max-h-[480px] min-h-[380px]">
+                    <AIPanel participantProfile={participantProfile} onTranscriptChange={onTranscriptChange} />
+                  </div>
+                  <section
+                    style={{
+                      background: "var(--surface-raised)",
+                      border: "var(--border-hairline)",
+                      borderRadius: "var(--radius-lg)",
+                      padding: "var(--space-5)",
+                    }}
+                  >
+                    <h3>This week's pattern</h3>
+                    <p className="lead" style={{ marginTop: "var(--space-2)" }}>
+                      Your HRV held steady through Wednesday, then dipped after two consecutive late nights.
+                      Sleep consistency is your weakest link this week.
+                    </p>
+                  </section>
+                </>
+              )}
+            </aside>
+          </div>
+        </Tabs>
       </div>
 
       {activeMetricDetail && (
@@ -184,6 +196,65 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
   );
 }
 
+function MetricGrid({
+  metrics,
+  onOpenDetails,
+}: {
+  metrics: HealthMetric[];
+  onOpenDetails: (metric: HealthMetric) => void;
+}) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+      {metrics.map((metric) => (
+        metric.id === "sleepStages" ? (
+          <LegacyMetricCard key={metric.id} metric={metric} onOpenDetails={onOpenDetails} />
+        ) : (
+          <MetricCard
+            key={metric.id}
+            label={metric.label}
+            value={metric.value}
+            unit={metric.unit}
+            trend={mapTrend(metric.trend)}
+            delta={signedDelta(metric)}
+            deltaSuffix={metric.unit}
+            baseline={buildBaselineText(metric)}
+            sparklineData={metric.sparkline}
+            baselineRange={metric.baselineRange}
+            sentence={metric.sentence}
+            unusual={metric.unusual}
+            onClick={() => onOpenDetails(metric)}
+          />
+        )
+      ))}
+    </div>
+  );
+}
+
+function signedDelta(metric: HealthMetric) {
+  if (metric.trend === "down") return -metric.change;
+  if (metric.trend === "stable") return 0;
+  return metric.change;
+}
+
+function mapTrend(trend: HealthMetric["trend"]): "up" | "down" | "flat" {
+  if (trend === "stable") return "flat";
+  return trend;
+}
+
+function average(values: number[]) {
+  if (!values.length) return 0;
+  return values.reduce((sum, value) => sum + value, 0) / values.length;
+}
+
+function buildBaselineText(metric: HealthMetric) {
+  if (typeof metric.baselineValue === "number") {
+    return `14-day baseline ${metric.baselineValue.toFixed(1)} ${metric.unit}`.trim();
+  }
+  const series = metric.sparkline ?? [];
+  const mean = average(series);
+  return `14-day baseline ${mean.toFixed(1)} ${metric.unit}`.trim();
+}
+
 function SectionTitle({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <div className="px-1">
@@ -193,35 +264,3 @@ function SectionTitle({ title, subtitle }: { title: string; subtitle: string }) 
   );
 }
 
-function RingMeter({
-  label,
-  value,
-  color,
-  icon,
-}: {
-  label: string;
-  value: number;
-  color: string;
-  icon: ReactNode;
-}) {
-  const percentage = Math.max(0, Math.min(100, Math.round(value)));
-  return (
-    <div className="rounded-xl border border-brand-border bg-[#333842] px-2 py-3 flex flex-col items-center gap-2 shadow-sm">
-      <div
-        className="w-16 h-16 rounded-full grid place-items-center relative"
-        style={{
-          background: `conic-gradient(${color} ${percentage}%, #4a4f5e ${percentage}% 100%)`,
-        }}
-      >
-        <div className="absolute inset-[6px] rounded-full bg-brand-card" />
-        <div className="relative flex flex-col items-center">
-          <span className="text-sm font-semibold leading-none">{percentage}%</span>
-        </div>
-      </div>
-      <div className="flex items-center gap-1 text-brand-muted">
-        {icon}
-        <span className="text-xs font-semibold">{label}</span>
-      </div>
-    </div>
-  );
-}

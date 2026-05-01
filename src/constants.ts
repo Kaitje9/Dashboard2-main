@@ -3,183 +3,424 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { DailyData, HealthMetric } from './types';
+import csvRaw from "../health_30d.csv?raw";
+import { baselineRange, isHealthyBaselineDay, rollingBaseline } from "./lib/baselines";
+import { HealthMetric } from "./types";
 
-export const MOCK_DAILY_HISTORY: DailyData[] = [
-  { date: 'W1 Mon', strain: 11.2, recovery: 86, sleepHours: 8.3, hrv: 70, rhr: 51 },
-  { date: 'W1 Tue', strain: 13.8, recovery: 80, sleepHours: 7.9, hrv: 67, rhr: 53 },
-  { date: 'W1 Wed', strain: 15.6, recovery: 71, sleepHours: 7.2, hrv: 63, rhr: 55 },
-  { date: 'W1 Thu', strain: 17.1, recovery: 59, sleepHours: 6.6, hrv: 58, rhr: 57 },
-  { date: 'W1 Fri', strain: 18.3, recovery: 48, sleepHours: 6.1, hrv: 54, rhr: 59 },
-  { date: 'W1 Sat', strain: 10.1, recovery: 78, sleepHours: 8.4, hrv: 69, rhr: 52 },
-  { date: 'W1 Sun', strain: 8.9, recovery: 90, sleepHours: 9.0, hrv: 74, rhr: 49 },
-  { date: 'W2 Mon', strain: 14.4, recovery: 76, sleepHours: 7.4, hrv: 65, rhr: 54 },
-  { date: 'W2 Tue', strain: 16.2, recovery: 63, sleepHours: 6.8, hrv: 60, rhr: 56 },
-  { date: 'W2 Wed', strain: 12.3, recovery: 79, sleepHours: 8.1, hrv: 68, rhr: 52 },
-  { date: 'W2 Thu', strain: 18.8, recovery: 42, sleepHours: 5.9, hrv: 50, rhr: 60 },
-  { date: 'W2 Fri', strain: 19.2, recovery: 38, sleepHours: 5.7, hrv: 48, rhr: 61 },
-  { date: 'W2 Sat', strain: 11.4, recovery: 72, sleepHours: 7.8, hrv: 64, rhr: 54 },
-  { date: 'W2 Sun', strain: 9.7, recovery: 88, sleepHours: 8.9, hrv: 73, rhr: 50 },
-  { date: 'W3 Mon', strain: 13.6, recovery: 82, sleepHours: 8.0, hrv: 69, rhr: 52 },
-  { date: 'W3 Tue', strain: 15.2, recovery: 74, sleepHours: 7.5, hrv: 65, rhr: 53 },
-  { date: 'W3 Wed', strain: 17.6, recovery: 56, sleepHours: 6.4, hrv: 56, rhr: 58 },
-  { date: 'W3 Thu', strain: 12.1, recovery: 83, sleepHours: 8.2, hrv: 70, rhr: 51 },
-  { date: 'W3 Fri', strain: 14.8, recovery: 77, sleepHours: 7.6, hrv: 66, rhr: 53 },
-  { date: 'W3 Sat', strain: 10.5, recovery: 87, sleepHours: 8.8, hrv: 72, rhr: 50 },
-  { date: 'W3 Sun', strain: 9.9, recovery: 91, sleepHours: 9.1, hrv: 75, rhr: 49 },
-  { date: 'W4 Mon', strain: 16.8, recovery: 62, sleepHours: 6.7, hrv: 59, rhr: 56 },
-  { date: 'W4 Tue', strain: 18.1, recovery: 54, sleepHours: 6.3, hrv: 55, rhr: 58 },
-  { date: 'W4 Wed', strain: 11.9, recovery: 85, sleepHours: 8.5, hrv: 71, rhr: 51 },
-  { date: 'W4 Thu', strain: 13.1, recovery: 81, sleepHours: 8.1, hrv: 68, rhr: 52 },
-  { date: 'W4 Fri', strain: 12.4, recovery: 84, sleepHours: 8.2, hrv: 68, rhr: 52 },
-  { date: 'W4 Sat', strain: 10.8, recovery: 89, sleepHours: 8.9, hrv: 73, rhr: 50 },
-  { date: 'W4 Sun', strain: 9.5, recovery: 92, sleepHours: 9.3, hrv: 76, rhr: 48 },
+interface HealthCsvRow {
+  date: string;
+  day_of_week: string;
+  hrv_morning_ms: number;
+  rhr_morning_bpm: number;
+  sleep_total_min: number;
+  sleep_deep_min: number;
+  sleep_rem_min: number;
+  sleep_light_min: number;
+  sleep_awake_min: number;
+  sleep_bedtime: string;
+  sleep_wake: string;
+  sleep_consistency_pct: number;
+  breathing_rate_rpm: number;
+  steps: number;
+  active_min_low: number;
+  active_min_moderate: number;
+  active_min_high: number;
+  vo2max: number;
+  calories_kcal: number;
+  spo2_mean_pct: number;
+  spo2_min_pct: number;
+  skin_temp_delta_c: number;
+  stress_mean: number;
+  stress_peak: number;
+}
+
+const numberColumns: (keyof HealthCsvRow)[] = [
+  "hrv_morning_ms",
+  "rhr_morning_bpm",
+  "sleep_total_min",
+  "sleep_deep_min",
+  "sleep_rem_min",
+  "sleep_light_min",
+  "sleep_awake_min",
+  "sleep_consistency_pct",
+  "breathing_rate_rpm",
+  "steps",
+  "active_min_low",
+  "active_min_moderate",
+  "active_min_high",
+  "vo2max",
+  "calories_kcal",
+  "spo2_mean_pct",
+  "spo2_min_pct",
+  "skin_temp_delta_c",
+  "stress_mean",
+  "stress_peak",
 ];
 
-const average = (values: number[]) =>
-  values.reduce((sum, value) => sum + value, 0) / values.length;
+const round1 = (value: number) => Math.round(value * 10) / 10;
+const round0 = (value: number) => Math.round(value);
+const average = (values: number[]) => (values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0);
+const last = <T,>(values: T[]) => values[values.length - 1];
+const lastN = <T,>(values: T[], n: number) => values.slice(Math.max(0, values.length - n));
 
-const toOneDecimal = (value: number) => Math.round(value * 10) / 10;
-const toInteger = (value: number) => Math.round(value);
+function parseCsv(input: string): HealthCsvRow[] {
+  const lines = input.trim().split(/\r?\n/);
+  if (lines.length < 2) return [];
 
-const latest = MOCK_DAILY_HISTORY[MOCK_DAILY_HISTORY.length - 1];
-const last7Days = MOCK_DAILY_HISTORY.slice(-7);
-const previous7Days = MOCK_DAILY_HISTORY.slice(-14, -7);
-const last28Days = MOCK_DAILY_HISTORY.slice(-28);
+  const headers = lines[0].split(",") as (keyof HealthCsvRow)[];
+  return lines.slice(1).map((line) => {
+    const values = line.split(",");
+    const row: Partial<HealthCsvRow> = {};
+    headers.forEach((header, index) => {
+      const value = values[index];
+      row[header] = numberColumns.includes(header)
+        ? Number.parseFloat(value)
+        : value;
+    });
+    return row as HealthCsvRow;
+  });
+}
 
-const sleepTargetHours = 8;
-const sleepDebtHours = Math.max(
-  0,
-  toOneDecimal(
-    last7Days.reduce((debt, day) => debt + Math.max(0, sleepTargetHours - day.sleepHours), 0)
-  )
+function trendFromLast7(values: number[], higherIsBetter = true): { trend: "up" | "down" | "stable"; change: number } {
+  const recent = lastN(values, 7);
+  if (recent.length < 2) return { trend: "stable", change: 0 };
+  const delta = round1(recent[recent.length - 1] - recent[0]);
+  if (Math.abs(delta) < 0.2) return { trend: "stable", change: 0 };
+
+  const up = delta > 0;
+  if (higherIsBetter) {
+    return { trend: up ? "up" : "down", change: Math.abs(delta) };
+  }
+  return { trend: up ? "down" : "up", change: Math.abs(delta) };
+}
+
+function toSleepHours(minutes: number) {
+  return round1(minutes / 60);
+}
+
+const rows = parseCsv(csvRaw);
+const latest = last(rows);
+
+const hrvSeries = rows.map((row) => row.hrv_morning_ms);
+const rhrSeries = rows.map((row) => row.rhr_morning_bpm);
+const sleepSeries = rows.map((row) => toSleepHours(row.sleep_total_min));
+const sleepConsistencySeries = rows.map((row) => row.sleep_consistency_pct);
+const breathingSeries = rows.map((row) => row.breathing_rate_rpm);
+const stepsSeries = rows.map((row) => row.steps);
+const activeMinutesSeries = rows.map((row) => row.active_min_low + row.active_min_moderate + row.active_min_high);
+const vo2Series = rows.map((row) => row.vo2max);
+const caloriesSeries = rows.map((row) => row.calories_kcal);
+const spo2Series = rows.map((row) => row.spo2_mean_pct);
+const skinTempSeries = rows.map((row) => row.skin_temp_delta_c);
+const stressSeries = rows.map((row) => row.stress_mean);
+
+const sleepDebtHours = round1(
+  lastN(rows, 7).reduce((debt, row) => debt + Math.max(0, 8 - toSleepHours(row.sleep_total_min)), 0),
 );
-const strainBalance =
-  average(last7Days.map(day => day.strain)) - average(previous7Days.map(day => day.strain));
+
+function baselineFor(metric: keyof HealthCsvRow) {
+  const value = round1(rollingBaseline(rows, metric, 14));
+  const range = baselineRange(rows, metric, 14).map((v) => round1(v)) as [number, number];
+  return { value, range };
+}
+
+const hrvBaseline = baselineFor("hrv_morning_ms");
+const rhrBaseline = baselineFor("rhr_morning_bpm");
+const sleepBaseline = baselineFor("sleep_total_min");
+const sleepConsistencyBaseline = baselineFor("sleep_consistency_pct");
+const breathingBaseline = baselineFor("breathing_rate_rpm");
+const stepsBaseline = baselineFor("steps");
+const activeMinutesBaseline = baselineFor("active_min_moderate");
+const vo2Baseline = baselineFor("vo2max");
+const caloriesBaseline = baselineFor("calories_kcal");
+const spo2Baseline = baselineFor("spo2_mean_pct");
+const skinTempBaseline = baselineFor("skin_temp_delta_c");
+const stressBaseline = baselineFor("stress_mean");
+
+const latestUnusual = !isHealthyBaselineDay(latest);
 
 export const MOCK_METRICS: HealthMetric[] = [
   {
-    id: 'recovery',
-    label: 'Recovery',
-    value: latest.recovery,
-    unit: '%',
-    trend: latest.recovery >= average(previous7Days.map(day => day.recovery)) ? 'up' : 'down',
-    change: toInteger(latest.recovery - average(previous7Days.map(day => day.recovery))),
-    status: latest.recovery >= 67 ? 'optimal' : latest.recovery >= 45 ? 'warning' : 'critical',
-    description: 'A measure of your body’s readiness to take on strain, calculated from HRV, RHR, and sleep.',
-    insight: 'Recovery is strongest after your two lowest-strain days this week.',
-    composition: ['HRV trend', 'Resting HR baseline', 'Sleep duration and consistency'],
-    goalImpact: 'Higher recovery supports quality high-intensity sessions and lowers overreach risk.',
-    trendNote: 'Recovery has climbed 11 points vs your prior 7-day average.',
+    id: "hrv",
+    category: "recovery",
+    label: "HRV",
+    value: round0(latest.hrv_morning_ms),
+    unit: "ms",
+    chartStyle: "line",
+    sparkline: lastN(hrvSeries, 14),
+    baselineValue: hrvBaseline.value,
+    baselineRange: hrvBaseline.range,
+    unusual: latestUnusual,
+    trend: trendFromLast7(hrvSeries).trend,
+    change: trendFromLast7(hrvSeries).change,
+    status: latest.hrv_morning_ms >= 47 ? "optimal" : latest.hrv_morning_ms >= 40 ? "warning" : "critical",
+    description: "Morning HRV relative to your rolling baseline.",
+    insight: "Reflects recovery and autonomic load.",
+    sentence: "Slightly above baseline this morning.",
   },
   {
-    id: 'strain',
-    label: 'Daily Strain',
-    value: latest.strain,
-    unit: '',
-    trend: latest.strain >= average(previous7Days.map(day => day.strain)) ? 'up' : 'down',
-    change: toOneDecimal(latest.strain - average(previous7Days.map(day => day.strain))),
-    status: latest.strain <= 16 ? 'optimal' : latest.strain <= 18 ? 'warning' : 'critical',
-    description: 'Total cardiovascular load accumulated today, based on heart rate zones and duration.',
-    insight: `7-day training load is ${strainBalance >= 0 ? 'up' : 'down'} ${Math.abs(
-      toOneDecimal(strainBalance)
-    )} vs the previous week.`,
-    composition: ['Time in HR zones', 'Session duration', 'Day-to-day load consistency'],
-    goalImpact: 'Keeping strain progressive helps fitness gains without disrupting recovery.',
-    trendNote: 'Training load is trending lower this week, likely aiding recovery rebound.',
+    id: "rhr",
+    category: "recovery",
+    label: "RHR",
+    value: round1(latest.rhr_morning_bpm),
+    unit: "bpm",
+    chartStyle: "range",
+    sparkline: lastN(rhrSeries, 14),
+    baselineValue: rhrBaseline.value,
+    baselineRange: rhrBaseline.range,
+    unusual: latestUnusual,
+    trend: trendFromLast7(rhrSeries, false).trend,
+    change: trendFromLast7(rhrSeries, false).change,
+    status: latest.rhr_morning_bpm <= 58 ? "optimal" : latest.rhr_morning_bpm <= 63 ? "warning" : "critical",
+    description: "Morning resting heart rate.",
+    insight: "Tracks cumulative fatigue and recovery state.",
+    sentence: "Still within your expected baseline band.",
   },
   {
-    id: 'hrv',
-    label: 'HRV',
-    value: latest.hrv,
-    unit: 'ms',
-    trend: latest.hrv >= average(previous7Days.map(day => day.hrv)) ? 'up' : 'down',
-    change: toInteger(latest.hrv - average(previous7Days.map(day => day.hrv))),
-    status: latest.hrv >= 62 ? 'optimal' : latest.hrv >= 55 ? 'warning' : 'critical',
-    description: 'Heart Rate Variability reflects autonomic nervous system balance and recovery readiness.',
-    insight: `7-day HRV average: ${toInteger(average(last7Days.map(day => day.hrv)))} ms.`,
-    composition: ['Nightly autonomic balance', 'Sleep quality', 'Accumulated stress and training load'],
-    goalImpact: 'A stable or rising HRV usually supports harder sessions and better adaptation.',
-    trendNote: 'HRV is up compared to your heavier-load weeks.',
+    id: "sleepDuration",
+    category: "sleep",
+    label: "Sleep duration",
+    value: toSleepHours(latest.sleep_total_min),
+    unit: "h",
+    chartStyle: "bars",
+    sparkline: lastN(sleepSeries, 14),
+    baselineValue: round1(sleepBaseline.value / 60),
+    baselineRange: [round1(sleepBaseline.range[0] / 60), round1(sleepBaseline.range[1] / 60)],
+    unusual: latestUnusual,
+    trend: trendFromLast7(sleepSeries).trend,
+    change: trendFromLast7(sleepSeries).change,
+    status: latest.sleep_total_min >= 420 ? "optimal" : latest.sleep_total_min >= 360 ? "warning" : "critical",
+    description: "Total sleep time from bedtime to wake.",
+    insight: `${sleepDebtHours}h debt over the past 7 days.`,
+    sentence: "Sleep duration is below your ideal target window.",
   },
   {
-    id: 'sleep',
-    label: 'Sleep Performance',
-    value: toOneDecimal(latest.sleepHours),
-    unit: 'h',
-    trend: latest.sleepHours >= average(previous7Days.map(day => day.sleepHours)) ? 'up' : 'down',
-    change: toOneDecimal(latest.sleepHours - average(previous7Days.map(day => day.sleepHours))),
-    status: latest.sleepHours >= 7.5 ? 'optimal' : latest.sleepHours >= 6.5 ? 'warning' : 'critical',
-    description: 'Sleep duration and consistency across the week, weighted toward recovery quality.',
-    insight: `${sleepDebtHours.toFixed(1)}h sleep debt accumulated over the last 7 days.`,
-    composition: ['Total sleep hours', 'Sleep consistency', 'Recovery-linked sleep debt'],
-    goalImpact: 'Improving sleep consistency unlocks better recovery and more reliable training outputs.',
-    trendNote: 'Sleep recovered strongly after two low-sleep nights early in the month.',
+    id: "sleepStages",
+    category: "sleep",
+    label: "Sleep stages",
+    value: "Distribution",
+    unit: "",
+    chartStyle: "sleepStages",
+    unusual: latestUnusual,
+    segments: [
+      { label: "Deep", value: round0((latest.sleep_deep_min / latest.sleep_total_min) * 100), color: "var(--sleep-deep)" },
+      { label: "REM", value: round0((latest.sleep_rem_min / latest.sleep_total_min) * 100), color: "var(--sleep-rem)" },
+      { label: "Light", value: round0((latest.sleep_light_min / latest.sleep_total_min) * 100), color: "var(--sleep-light)" },
+      { label: "Awake", value: round0((latest.sleep_awake_min / latest.sleep_total_min) * 100), color: "var(--sleep-awake)" },
+    ],
+    trend: "stable",
+    change: 0,
+    status: "optimal",
+    description: "Deep, REM, light, and awake split.",
+    insight: "Architecture appears stable this week.",
+    sentence: "Deep and REM are close to your weekly pattern.",
   },
   {
-    id: 'rhr',
-    label: 'Resting HR',
-    value: latest.rhr,
-    unit: 'bpm',
-    trend: latest.rhr <= average(previous7Days.map(day => day.rhr)) ? 'down' : 'up',
-    change: toInteger(Math.abs(latest.rhr - average(previous7Days.map(day => day.rhr)))),
-    status: latest.rhr <= 53 ? 'optimal' : latest.rhr <= 57 ? 'warning' : 'critical',
-    description: 'Your heart rate while at complete rest. Lower values generally indicate stronger aerobic recovery.',
-    insight: `Lowest RHR this month: ${Math.min(...last28Days.map(day => day.rhr))} bpm.`,
-    composition: ['Cardiovascular efficiency', 'Recovery status', 'Stress and sleep quality'],
-    goalImpact: 'Lower and stable RHR supports endurance capacity and next-day readiness.',
-    trendNote: 'RHR is in its lowest zone of the 4-week block.',
+    id: "sleepRegularity",
+    category: "sleep",
+    label: "Sleep consistency",
+    value: round0(latest.sleep_consistency_pct),
+    unit: "%",
+    chartStyle: "line",
+    sparkline: lastN(sleepConsistencySeries, 14),
+    baselineValue: sleepConsistencyBaseline.value,
+    baselineRange: sleepConsistencyBaseline.range,
+    unusual: latestUnusual,
+    trend: trendFromLast7(sleepConsistencySeries).trend,
+    change: trendFromLast7(sleepConsistencySeries).change,
+    status: latest.sleep_consistency_pct >= 82 ? "optimal" : latest.sleep_consistency_pct >= 72 ? "warning" : "critical",
+    description: "Bed/wake timing regularity score.",
+    insight: "Consistency remains one of the biggest levers.",
+    sentence: "Schedule drift is still affecting sleep quality.",
   },
   {
-    id: 'respiratory',
-    label: 'Respiratory Rate',
-    value: 14.2,
-    unit: 'rpm',
-    trend: 'stable',
-    change: 0.2,
-    status: 'optimal',
-    description: 'Number of breaths per minute during sleep. Elevated rates can indicate stress or illness.',
-    insight: 'Breathing baseline is stable with low nightly variance.',
-    composition: ['Nightly respiration average', 'Variance from baseline', 'Stress/illness signal'],
-    goalImpact: 'Stable respiratory rate supports confidence in progressing training safely.',
-    trendNote: 'No abnormal respiratory spikes in the last 14 days.',
+    id: "sleepRespRate",
+    category: "sleep",
+    label: "Breathing rate",
+    value: round1(latest.breathing_rate_rpm),
+    unit: "rpm",
+    chartStyle: "range",
+    sparkline: lastN(breathingSeries, 14),
+    baselineValue: breathingBaseline.value,
+    baselineRange: breathingBaseline.range,
+    unusual: latestUnusual,
+    trend: trendFromLast7(breathingSeries, false).trend,
+    change: trendFromLast7(breathingSeries, false).change,
+    status: latest.breathing_rate_rpm <= 16 ? "optimal" : latest.breathing_rate_rpm <= 18 ? "warning" : "critical",
+    description: "Average sleeping respiratory rate.",
+    insight: "Useful context around recovery and stress.",
+    sentence: "No sustained respiratory elevation detected.",
   },
   {
-    id: 'sleepDebt',
-    label: 'Sleep Debt (7d)',
-    value: sleepDebtHours,
-    unit: 'h',
-    trend: sleepDebtHours <= 2 ? 'down' : 'up',
-    change: toOneDecimal(sleepDebtHours),
-    status: sleepDebtHours <= 2 ? 'optimal' : sleepDebtHours <= 4 ? 'warning' : 'critical',
-    description: 'The cumulative amount of sleep below your 8-hour target over the trailing 7 days.',
-    insight: sleepDebtHours <= 2 ? 'Recovery reserve is healthy.' : 'Prioritize earlier bedtime for 2-3 nights.',
-    composition: ['Sleep target gap per night', '7-day accumulation', 'Recovery compensation need'],
-    goalImpact: 'Reducing sleep debt can quickly improve recovery scores and training tolerance.',
-    trendNote: sleepDebtHours <= 2 ? 'Sleep debt is controlled.' : 'Sleep debt is starting to limit upside.',
+    id: "sleepStepsPerDay",
+    category: "sleep",
+    label: "Steps",
+    value: latest.steps,
+    unit: "",
+    chartStyle: "steps",
+    sparkline: lastN(stepsSeries, 14),
+    baselineValue: stepsBaseline.value,
+    baselineRange: stepsBaseline.range,
+    unusual: latestUnusual,
+    trend: trendFromLast7(stepsSeries).trend,
+    change: trendFromLast7(stepsSeries).change,
+    status: latest.steps >= 8000 ? "optimal" : latest.steps >= 5500 ? "warning" : "critical",
+    description: "Daily movement volume.",
+    insight: "Activity volume supports sleep pressure.",
+    sentence: "Step count remains above your baseline.",
+  },
+  {
+    id: "activityStepsPerDay",
+    category: "activity",
+    label: "Steps",
+    value: latest.steps,
+    unit: "",
+    chartStyle: "steps",
+    sparkline: lastN(stepsSeries, 14),
+    baselineValue: stepsBaseline.value,
+    baselineRange: stepsBaseline.range,
+    unusual: latestUnusual,
+    trend: trendFromLast7(stepsSeries).trend,
+    change: trendFromLast7(stepsSeries).change,
+    status: latest.steps >= 8000 ? "optimal" : latest.steps >= 5500 ? "warning" : "critical",
+    description: "Daily locomotion volume.",
+    insight: "Strong contributor to daily output.",
+    sentence: "You are trending above your weekly movement baseline.",
+  },
+  {
+    id: "activeMinutes",
+    category: "activity",
+    label: "Active minutes",
+    value: latest.active_min_low + latest.active_min_moderate + latest.active_min_high,
+    unit: "min",
+    chartStyle: "bars",
+    sparkline: lastN(activeMinutesSeries, 14),
+    baselineValue: activeMinutesBaseline.value,
+    baselineRange: activeMinutesBaseline.range,
+    unusual: latestUnusual,
+    trend: trendFromLast7(activeMinutesSeries).trend,
+    change: trendFromLast7(activeMinutesSeries).change,
+    status: activeMinutesSeries[activeMinutesSeries.length - 1] >= 60 ? "optimal" : activeMinutesSeries[activeMinutesSeries.length - 1] >= 35 ? "warning" : "critical",
+    description: "Low + moderate + high intensity minutes.",
+    insight: "Intensity mix affects recovery the next day.",
+    sentence: "Intensity stayed moderate through most of the week.",
+  },
+  {
+    id: "vo2max",
+    category: "activity",
+    label: "VO2 max",
+    value: round1(latest.vo2max),
+    unit: "ml/kg/min",
+    chartStyle: "line",
+    sparkline: lastN(vo2Series, 14),
+    baselineValue: vo2Baseline.value,
+    baselineRange: vo2Baseline.range,
+    unusual: latestUnusual,
+    trend: trendFromLast7(vo2Series).trend,
+    change: trendFromLast7(vo2Series).change,
+    status: latest.vo2max >= 46 ? "optimal" : latest.vo2max >= 40 ? "warning" : "critical",
+    description: "Estimated aerobic capacity.",
+    insight: "Capacity remains broadly stable.",
+    sentence: "VO2 max is holding steady near your baseline.",
+  },
+  {
+    id: "caloriesBurned",
+    category: "activity",
+    label: "Calories burned",
+    value: latest.calories_kcal,
+    unit: "kcal",
+    chartStyle: "radial",
+    sparkline: lastN(caloriesSeries, 14),
+    baselineValue: caloriesBaseline.value,
+    baselineRange: caloriesBaseline.range,
+    unusual: latestUnusual,
+    trend: trendFromLast7(caloriesSeries).trend,
+    change: trendFromLast7(caloriesSeries).change,
+    status: latest.calories_kcal >= 2200 ? "optimal" : latest.calories_kcal >= 1800 ? "warning" : "critical",
+    description: "Total daily expenditure.",
+    insight: "Useful for training load and fueling context.",
+    sentence: "Energy output is slightly above baseline this week.",
+  },
+  {
+    id: "spo2",
+    category: "sleep",
+    label: "SpO2",
+    value: round1(latest.spo2_mean_pct),
+    unit: "%",
+    chartStyle: "range",
+    sparkline: lastN(spo2Series, 14),
+    baselineValue: spo2Baseline.value,
+    baselineRange: spo2Baseline.range,
+    unusual: latestUnusual,
+    trend: trendFromLast7(spo2Series).trend,
+    change: trendFromLast7(spo2Series).change,
+    status: latest.spo2_mean_pct >= 96 ? "optimal" : latest.spo2_mean_pct >= 94 ? "warning" : "critical",
+    description: "Night oxygen saturation average.",
+    insight: "Oxygenation is stable and healthy.",
+    sentence: "No concerning drop in overnight oxygen saturation.",
+  },
+  {
+    id: "skinTemp",
+    category: "sleep",
+    label: "Skin temperature",
+    value: round1(latest.skin_temp_delta_c),
+    unit: "delta C",
+    chartStyle: "line",
+    sparkline: lastN(skinTempSeries, 14),
+    baselineValue: skinTempBaseline.value,
+    baselineRange: skinTempBaseline.range,
+    unusual: latest.skin_temp_delta_c > 0.4,
+    trend: trendFromLast7(skinTempSeries, false).trend,
+    change: trendFromLast7(skinTempSeries, false).change,
+    status: Math.abs(latest.skin_temp_delta_c) <= 0.25 ? "optimal" : Math.abs(latest.skin_temp_delta_c) <= 0.4 ? "warning" : "critical",
+    description: "Deviation from personal skin-temperature baseline.",
+    insight: "Higher deltas can indicate physiological strain.",
+    sentence: "Temperature signal is close to baseline right now.",
+  },
+  {
+    id: "stressScore",
+    category: "recovery",
+    label: "Stress",
+    value: latest.stress_mean,
+    unit: "/100",
+    chartStyle: "radial",
+    sparkline: lastN(stressSeries, 14),
+    baselineValue: stressBaseline.value,
+    baselineRange: stressBaseline.range,
+    unusual: latestUnusual,
+    trend: trendFromLast7(stressSeries, false).trend,
+    change: trendFromLast7(stressSeries, false).change,
+    status: latest.stress_mean <= 45 ? "optimal" : latest.stress_mean <= 58 ? "warning" : "critical",
+    description: "Daily stress mean from HRV + heart rate dynamics.",
+    insight: "Stress burden is currently moderate.",
+    sentence: "Stress remains within your baseline envelope.",
   },
 ];
 
 export const HEALTH_DATA_CONTEXT = `
 Current snapshot:
-- Recovery: ${latest.recovery}%
-- Strain: ${latest.strain}
-- Sleep last night: ${latest.sleepHours}h
-- HRV: ${latest.hrv}ms
-- Resting HR: ${latest.rhr}bpm
-- Respiratory rate: 14.2 rpm
+- Date: ${latest.date} (${latest.day_of_week})
+- HRV: ${round0(latest.hrv_morning_ms)} ms
+- RHR: ${round1(latest.rhr_morning_bpm)} bpm
+- Sleep duration: ${toSleepHours(latest.sleep_total_min)} h
+- Sleep consistency: ${round0(latest.sleep_consistency_pct)}%
+- Breathing rate: ${round1(latest.breathing_rate_rpm)} rpm
+- Steps: ${latest.steps}
+- Active minutes: ${latest.active_min_low + latest.active_min_moderate + latest.active_min_high}
+- VO2 max: ${round1(latest.vo2max)}
+- Calories burned: ${latest.calories_kcal} kcal
+- SpO2: ${round1(latest.spo2_mean_pct)}%
+- Skin temperature delta: ${round1(latest.skin_temp_delta_c)} C
+- Stress: ${latest.stress_mean}/100
+- Sleep debt (last 7 days): ${sleepDebtHours} h
 
-Trends:
-- 7-day avg recovery: ${toInteger(average(last7Days.map(day => day.recovery)))}%
-- 7-day avg strain: ${toOneDecimal(average(last7Days.map(day => day.strain)))}
-- 7-day avg sleep: ${toOneDecimal(average(last7Days.map(day => day.sleepHours)))}h
-- 7-day avg HRV: ${toInteger(average(last7Days.map(day => day.hrv)))}ms
-- 7-day avg RHR: ${toInteger(average(last7Days.map(day => day.rhr)))}bpm
-- Sleep debt (7d): ${sleepDebtHours}h
-- Previous week avg strain: ${toOneDecimal(average(previous7Days.map(day => day.strain)))}
+14-day baselines:
+- HRV baseline: ${hrvBaseline.value} ms
+- RHR baseline: ${rhrBaseline.value} bpm
+- Sleep baseline: ${round1(sleepBaseline.value / 60)} h
+- Stress baseline: ${stressBaseline.value}
 `.trim();
 
 export const INITIAL_AI_GREETING =
-  `Good morning. Recovery is ${latest.recovery}% and your 7-day sleep average is ` +
-  `${toOneDecimal(average(last7Days.map(day => day.sleepHours)))}h. ` +
-  `Would you like a training recommendation for today based on this trend?`;
+  `Good evening. HRV is ${round0(latest.hrv_morning_ms)} ms and sleep was ${toSleepHours(latest.sleep_total_min)}h last night. ` +
+  "Would you like to focus on recovery, sleep, or activity today?";

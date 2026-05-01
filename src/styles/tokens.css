@@ -1,0 +1,220 @@
+/* ============================================
+   Design tokens — Function-inspired editorial
+   ============================================ */
+
+:root {
+  /* ---------- Color: surfaces ---------- */
+  --surface-base:        #0F0E0D;  /* warm near-black, page background */
+  --surface-raised:      #1A1816;  /* cards, elevated panels */
+  --surface-sunken:      #0A0908;  /* subtle inset areas */
+  --surface-overlay:     #221F1C;  /* hover states, secondary surfaces */
+
+  /* ---------- Color: text ---------- */
+  --text-primary:        #EFEAE3;  /* off-white, body and headlines */
+  --text-secondary:      #A8A096;  /* muted warm gray, labels */
+  --text-tertiary:       #6B665E;  /* hints, timestamps, metadata */
+  --text-inverse:        #0F0E0D;  /* text on light/coral backgrounds */
+
+  /* ---------- Color: accents ---------- */
+  /* Coral — brand, CTAs, attention */
+  --accent-coral-50:     #F5DCD0;
+  --accent-coral-200:    #E89B7A;
+  --accent-coral-500:    #D4633E;  /* primary brand accent */
+  --accent-coral-700:    #9E4628;
+  --accent-coral-bg:     rgba(212, 99, 62, 0.12);
+
+  /* Sage — positive, in-range, healthy */
+  --accent-sage-50:      #D8E5DE;
+  --accent-sage-200:     #A6C5B5;
+  --accent-sage-500:     #7FB29B;  /* primary positive */
+  --accent-sage-700:     #4F8770;
+  --accent-sage-bg:      rgba(127, 178, 155, 0.12);
+
+  /* ---------- Color: semantic ---------- */
+  --signal-attention:    #C9A961;  /* gold-ish, dempt — niet alarmerend */
+  --signal-attention-bg: rgba(201, 169, 97, 0.12);
+
+  /* ---------- Color: borders ---------- */
+  --border-subtle:       rgba(239, 234, 227, 0.08);  /* default 0.5px */
+  --border-default:      rgba(239, 234, 227, 0.14);  /* hover, emphasis */
+  --border-strong:       rgba(239, 234, 227, 0.22);  /* focus, active */
+
+  /* ---------- Color: chart specifics ---------- */
+  --chart-baseline:      rgba(239, 234, 227, 0.18);  /* dotted baselines */
+  --chart-band:          rgba(127, 178, 155, 0.08);  /* normal range fill */
+  --chart-grid:          rgba(239, 234, 227, 0.05);  /* subtle gridlines if used */
+  --chart-projection:    rgba(239, 234, 227, 0.30);  /* dotted future data */
+
+  /* Sleep stage colors — gradient van diep naar licht */
+  --sleep-deep:          #4A6B5E;
+  --sleep-rem:           #7FB29B;
+  --sleep-light:         #A6C5B5;
+  --sleep-awake:         #6B665E;
+
+  /* Activity intensity — gradient van laag naar hoog */
+  --activity-low:        #6B665E;
+  --activity-moderate:   #C9A961;
+  --activity-high:       #D4633E;
+
+  /* ---------- Typography: families ---------- */
+  --font-serif: 'Fraunces', 'Tiempos Headline', 'GT Sectra', 'Iowan Old Style',
+                'Apple Garamond', 'Cambria', Georgia, serif;
+  --font-sans:  'Inter', -apple-system, BlinkMacSystemFont,
+                'Segoe UI', system-ui, sans-serif;
+  --font-mono:  'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+
+  /* ---------- Typography: sizes ---------- */
+  --text-display:   clamp(2.5rem, 4vw, 3.5rem);   /* hero numbers, 40-56px */
+  --text-h1:        clamp(2rem, 3vw, 2.75rem);    /* page titles, 32-44px */
+  --text-h2:        1.625rem;                      /* section headlines, 26px */
+  --text-h3:        1.25rem;                       /* card titles, 20px */
+  --text-body-lg:   1.0625rem;                     /* lead paragraphs, 17px */
+  --text-body:      0.9375rem;                     /* default, 15px */
+  --text-sm:        0.8125rem;                     /* labels, 13px */
+  --text-xs:        0.6875rem;                     /* metadata, 11px */
+
+  /* ---------- Typography: weights ---------- */
+  /* Serif: alleen 400 (regular). Italics gebruiken voor emfase. */
+  /* Sans: 400 regular, 500 medium. Geen 600/700. */
+  --weight-regular: 400;
+  --weight-medium:  500;
+
+  /* ---------- Typography: line heights ---------- */
+  --leading-tight:   1.15;   /* large headlines, hero numbers */
+  --leading-snug:    1.35;   /* h2, h3 */
+  --leading-normal:  1.55;   /* body */
+  --leading-relaxed: 1.7;    /* long-form prose */
+
+  /* ---------- Typography: tracking ---------- */
+  --tracking-tight:  -0.02em;   /* large serif, optical correction */
+  --tracking-normal: 0;
+  --tracking-wide:   0.04em;    /* small caps labels */
+
+  /* ---------- Spacing ---------- */
+  --space-1:  0.25rem;   /* 4px */
+  --space-2:  0.5rem;    /* 8px */
+  --space-3:  0.75rem;   /* 12px */
+  --space-4:  1rem;      /* 16px */
+  --space-5:  1.5rem;    /* 24px */
+  --space-6:  2rem;      /* 32px */
+  --space-7:  3rem;      /* 48px */
+  --space-8:  4rem;      /* 64px */
+
+  /* ---------- Layout ---------- */
+  --radius-sm:  8px;
+  --radius-md:  12px;
+  --radius-lg:  16px;     /* cards default */
+  --radius-xl:  20px;     /* hero tiles */
+  --radius-pill: 999px;
+
+  --card-padding:        var(--space-6);     /* 32px */
+  --card-padding-snug:   var(--space-5);     /* 24px */
+
+  --container-max:       1280px;
+  --content-max:         720px;              /* prose readable width */
+  --sidebar-width:       340px;
+
+  /* ---------- Borders ---------- */
+  --border-hairline: 0.5px solid var(--border-subtle);
+  --border-thin:     1px solid var(--border-subtle);
+
+  /* ---------- Transitions ---------- */
+  --ease-out:   cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast:   120ms;
+  --duration-normal: 200ms;
+  --duration-slow:   320ms;
+
+  /* ---------- Focus ring ---------- */
+  --focus-ring: 0 0 0 2px var(--surface-base),
+                0 0 0 4px var(--accent-coral-500);
+}
+
+/* ============================================
+   Light mode (optional — keep dark as primary)
+   ============================================ */
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --surface-base:    #F7F3EC;
+    --surface-raised:  #FFFFFF;
+    --surface-sunken:  #EFEAE0;
+    --surface-overlay: #F0EBE2;
+
+    --text-primary:    #1A1816;
+    --text-secondary:  #5F5A52;
+    --text-tertiary:   #8B857B;
+    --text-inverse:    #FFFFFF;
+
+    --border-subtle:   rgba(26, 24, 22, 0.08);
+    --border-default:  rgba(26, 24, 22, 0.14);
+    --border-strong:   rgba(26, 24, 22, 0.22);
+
+    --chart-baseline:  rgba(26, 24, 22, 0.18);
+    --chart-band:      rgba(127, 178, 155, 0.10);
+    --chart-grid:      rgba(26, 24, 22, 0.05);
+    --chart-projection: rgba(26, 24, 22, 0.30);
+  }
+}
+
+/* ============================================
+   Base typography reset
+   ============================================ */
+
+body {
+  background: var(--surface-base);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
+  font-weight: var(--weight-regular);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-serif);
+  font-weight: var(--weight-regular);
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-primary);
+}
+
+h1 { font-size: var(--text-h1); line-height: var(--leading-tight); }
+h2 { font-size: var(--text-h2); line-height: var(--leading-snug); }
+h3 { font-size: var(--text-h3); line-height: var(--leading-snug); }
+
+/* Editorial display number — for hero stats like a Biological Age */
+.display-number {
+  font-family: var(--font-serif);
+  font-size: var(--text-display);
+  font-weight: var(--weight-regular);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  font-feature-settings: "lnum" 1, "tnum" 1;  /* lining + tabular figures */
+}
+
+.lead {
+  font-size: var(--text-body-lg);
+  line-height: var(--leading-snug);
+  color: var(--text-secondary);
+}
+
+.meta {
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+}
+
+output,
+data,
+.display-number {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* Small caps label — for metric sub-labels */
+.label-caps {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}

@@ -5,9 +5,17 @@
 
 export interface HealthMetric {
   id: string;
+  category: 'recovery' | 'sleep' | 'activity' | 'context';
   label: string;
   value: number | string;
   unit: string;
+  chartStyle: 'line' | 'bars' | 'sleepStages' | 'range' | 'radial' | 'steps';
+  sparkline?: number[];
+  baselineValue?: number;
+  baselineRange?: [number, number];
+  unusual?: boolean;
+  sentence?: string;
+  segments?: { label: string; value: number; color: string }[];
   trend: 'up' | 'down' | 'stable';
   change: number;
   status: 'optimal' | 'warning' | 'critical';

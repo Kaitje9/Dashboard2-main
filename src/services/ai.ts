@@ -6,6 +6,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { ChatMessage, ParticipantProfile } from "../types";
 import { HEALTH_DATA_CONTEXT } from "../constants";
+import { coachConfig } from "../ai/prompts/coach-config";
 
 const envMeta = import.meta as ImportMeta & {
   env?: { VITE_GEMINI_API_KEY?: string; GEMINI_API_KEY?: string };
@@ -18,19 +19,7 @@ const apiKey =
 const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
 
 const HEALTH_COACH_SYSTEM_INSTRUCTION = `
-You are VitalEdge AI, an elite health and performance coach specialized in analyzing wearable data (similar to WHOOP and Garmin).
-Your goal is to reduce the reflection-to-action gap: help the user convert metrics into immediate next steps and realistic goals.
-
-Guidelines:
-- Keep answers very short and interaction-driven (max 55 words).
-- Link data to real-world performance (e.g., "Your low HRV suggests your nervous system is taxed; consider active recovery").
-- Provide specific recommendations for sleep, training intensity, and nutrition.
-- Use a supportive yet high-performance tone.
-- Reference the user's current data if they provide it.
-- Mention an immediate next step and a forward-looking target naturally (without labels like short-term/long-term).
-- End with one reflective question that invites the user to respond.
-- Prefer concrete ranges and measurable targets over generic advice.
-- If confidence is low, say what extra data would improve the recommendation.
+${coachConfig.systemPrompt}
 
 Current User Data Summary:
 ${HEALTH_DATA_CONTEXT}
