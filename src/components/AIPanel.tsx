@@ -26,13 +26,15 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isComposingInline, setIsComposingInline] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const inlineInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, isComposingInline]);
 
   useEffect(() => {
     onTranscriptChange?.(messages);
@@ -66,8 +68,15 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
       setMessages(prev => [...prev, { role: 'model', text: 'Connection issue. Pulse AI offline.' }]);
     } finally {
       setIsLoading(false);
+      setIsComposingInline(false);
     }
   };
+
+  useEffect(() => {
+    if (isComposingInline) {
+      requestAnimationFrame(() => inlineInputRef.current?.focus());
+    }
+  }, [isComposingInline]);
 
   return (
     <div className="flex flex-col h-full bg-white/14 backdrop-blur-2xl" id="ai-panel">
@@ -117,28 +126,57 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
               </div>
             </motion.div>
           )}
+
+          {isComposingInline && (
+            <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="pt-2">
+              <div className="relative flex items-center h-14 rounded-full bg-brand-card shadow-[0_10px_24px_rgba(16,19,23,0.12)] px-3">
+                <input
+                  ref={inlineInputRef}
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                  onBlur={() => {
+                    if (!isLoading && !input.trim()) setIsComposingInline(false);
+                  }}
+                  placeholder="Ask about your data..."
+                  className="w-full bg-transparent px-3 pr-12 text-[16px] text-brand-text focus:outline-none placeholder:text-brand-muted"
+                />
+                <button
+                  onClick={handleSend}
+                  disabled={isLoading}
+                  className="absolute right-3 w-8 h-8 rounded-full bg-white/80 flex items-center justify-center text-brand-muted hover:text-brand-accent transition-colors disabled:opacity-50 shadow-[0_6px_16px_rgba(16,19,23,0.1)]"
+                >
+                  <span className="text-[10px]">⏎</span>
+                </button>
+              </div>
+            </motion.div>
+          )}
         </AnimatePresence>
       </div>
 
-      <div className="p-4 bg-white/12">
-        <div className="relative flex items-center h-14 rounded-full bg-brand-card shadow-[0_10px_24px_rgba(16,19,23,0.12)] px-3">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-            placeholder="Ask about your data..."
-            className="w-full bg-transparent px-3 pr-12 text-[16px] text-brand-text focus:outline-none placeholder:text-brand-muted"
-          />
-          <button
-            onClick={handleSend}
-            disabled={isLoading}
-            className="absolute right-3 w-8 h-8 rounded-full bg-white/80 flex items-center justify-center text-brand-muted hover:text-brand-accent transition-colors disabled:opacity-50 shadow-[0_6px_16px_rgba(16,19,23,0.1)]"
-          >
-            <span className="text-[10px]">⏎</span>
-          </button>
+      {!isComposingInline && (
+        <div className="p-4 bg-white/12">
+          <div className="relative flex items-center h-14 rounded-full bg-brand-card shadow-[0_10px_24px_rgba(16,19,23,0.12)] px-3">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onFocus={() => setIsComposingInline(true)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+              placeholder="Ask about your data..."
+              className="w-full bg-transparent px-3 pr-12 text-[16px] text-brand-text focus:outline-none placeholder:text-brand-muted"
+            />
+            <button
+              onClick={handleSend}
+              disabled={isLoading}
+              className="absolute right-3 w-8 h-8 rounded-full bg-white/80 flex items-center justify-center text-brand-muted hover:text-brand-accent transition-colors disabled:opacity-50 shadow-[0_6px_16px_rgba(16,19,23,0.1)]"
+            >
+              <span className="text-[10px]">⏎</span>
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

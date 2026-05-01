@@ -79,7 +79,7 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
           {activePage === "today" && (
             <div className="space-y-5">
               <SectionTitle title="Daily Snapshot" subtitle="Last sync 09:24" />
-              <div className="bg-brand-card border border-brand-border rounded-[24px] p-5 shadow-[0_6px_18px_rgba(16,19,23,0.06)] space-y-4">
+              <div className="bg-brand-card rounded-[24px] p-5 shadow-[0_8px_24px_rgba(16,19,23,0.08)] space-y-4">
                 <div className="grid grid-cols-3 gap-2 sm:gap-4">
                   <RingMeter
                     label="Strain"
@@ -106,7 +106,7 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
                     suffix="%"
                   />
                 </div>
-                <div className="rounded-2xl bg-brand-bg/60 border border-brand-border px-4 py-3 flex items-center justify-between">
+                <div className="rounded-2xl bg-brand-bg/60 px-4 py-3 flex items-center justify-between shadow-[0_4px_14px_rgba(16,19,23,0.06)]">
                   <div>
                     <p className="text-[10px] uppercase tracking-[0.16em] font-black text-brand-muted">Readiness</p>
                     <p className="text-sm text-brand-text font-semibold">{snapshotStatus}</p>
@@ -122,7 +122,7 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <motion.div 
                     whileHover={{ y: -5 }}
-                    className="bg-brand-card rounded-[28px] p-6 border border-brand-border flex flex-col justify-between group relative overflow-hidden shadow-[0_6px_18px_rgba(16,19,23,0.06)]"
+                    className="bg-brand-card rounded-[28px] p-6 flex flex-col justify-between group relative overflow-hidden shadow-[0_8px_24px_rgba(16,19,23,0.08)]"
                 >
                     <div className="absolute top-0 right-0 w-32 h-32 bg-brand-accent/5 rounded-full -mr-16 -mt-16 blur-3xl" />
                     <div>
@@ -131,7 +131,7 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
                     </div>
                     <div className="mt-8 flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-brand-bg border border-brand-border flex items-center justify-center">
+                            <div className="w-8 h-8 rounded-full bg-brand-bg/80 flex items-center justify-center shadow-[0_2px_8px_rgba(16,19,23,0.08)]">
                                 <ShieldCheck className="w-4 h-4 text-brand-accent" />
                             </div>
                             <span className="text-[10px] text-brand-muted uppercase font-black tracking-widest">Optimized Load</span>
@@ -142,7 +142,7 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
 
                 <motion.div 
                     whileHover={{ y: -5 }}
-                    className="bg-brand-card rounded-[28px] p-6 border border-brand-border flex flex-col justify-between group relative overflow-hidden shadow-[0_6px_18px_rgba(16,19,23,0.06)]"
+                    className="bg-brand-card rounded-[28px] p-6 flex flex-col justify-between group relative overflow-hidden shadow-[0_8px_24px_rgba(16,19,23,0.08)]"
                 >
                     <div className="absolute top-0 right-0 w-32 h-32 bg-[#3E92F9]/5 rounded-full -mr-16 -mt-16 blur-3xl" />
                     <div>
@@ -151,7 +151,7 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
                     </div>
                     <div className="mt-8 flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-brand-bg border border-brand-border flex items-center justify-center">
+                            <div className="w-8 h-8 rounded-full bg-brand-bg/80 flex items-center justify-center shadow-[0_2px_8px_rgba(16,19,23,0.08)]">
                                 <Moon className="w-4 h-4 text-[#3E92F9]" />
                             </div>
                             <span className="text-[10px] text-brand-muted uppercase font-black tracking-widest">Sleep Sync</span>
@@ -176,7 +176,7 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
               <motion.section 
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="bg-brand-card border border-brand-border rounded-[30px] p-6 md:p-8 flex flex-col h-[430px] shadow-[0_6px_18px_rgba(16,19,23,0.06)]"
+                className="bg-brand-card rounded-[30px] p-6 md:p-8 flex flex-col h-[430px] shadow-[0_8px_24px_rgba(16,19,23,0.08)]"
               >
                 <div className="flex justify-between items-end mb-10 gap-4">
                     <div>
@@ -320,46 +320,52 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
       )}
 
       {/* Mobile/desktop page tabs + AI */}
-      <nav
-        className={`fixed bottom-5 z-[60] bg-brand-card shadow-[0_10px_24px_rgba(16,19,23,0.12)] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-          isNavCollapsed
-            ? "left-4 w-14 h-14 rounded-full flex items-center justify-center"
-            : "left-1/2 -translate-x-1/2 w-[min(64vw,220px)] h-14 rounded-full px-1.5 py-1 flex items-center justify-between"
+      <div
+        className={`fixed bottom-5 z-[60] flex items-center gap-2 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+          isNavCollapsed ? "left-4" : "left-1/2 -translate-x-1/2"
         }`}
       >
-        <TabButton
-          icon={<Home className="w-4 h-4" />}
-          label="Today"
-          active={activePage === "today"}
-          onClick={() => setActivePage("today")}
-          collapsed={isNavCollapsed}
-        />
-        {!isNavCollapsed && (
-          <>
-            <TabButton
-              icon={<BarChart3 className="w-4 h-4" />}
-              label="Fitness"
-              active={activePage === "fitness"}
-              onClick={() => setActivePage("fitness")}
-            />
-            <TabButton
-              icon={<HeartPulse className="w-4 h-4" />}
-              label="Biology"
-              active={activePage === "biology"}
-              onClick={() => setActivePage("biology")}
-            />
-          </>
-        )}
-      </nav>
+        <nav
+          className={`bg-brand-card shadow-[0_10px_24px_rgba(16,19,23,0.12)] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+            isNavCollapsed
+              ? "w-14 h-14 rounded-full flex items-center justify-center"
+              : "w-[min(64vw,220px)] h-14 rounded-full px-1.5 py-1 flex items-center justify-between"
+          }`}
+        >
+          <TabButton
+            icon={<Home className="w-4 h-4" />}
+            label="Today"
+            active={activePage === "today"}
+            onClick={() => setActivePage("today")}
+            collapsed={isNavCollapsed}
+          />
+          {!isNavCollapsed && (
+            <>
+              <TabButton
+                icon={<BarChart3 className="w-4 h-4" />}
+                label="Fitness"
+                active={activePage === "fitness"}
+                onClick={() => setActivePage("fitness")}
+              />
+              <TabButton
+                icon={<HeartPulse className="w-4 h-4" />}
+                label="Biology"
+                active={activePage === "biology"}
+                onClick={() => setActivePage("biology")}
+              />
+            </>
+          )}
+        </nav>
 
-      <button
-        type="button"
-        onClick={() => setShowAssistant(prev => !prev)}
-        className="fixed bottom-5 right-4 z-[60] w-14 h-14 rounded-full bg-brand-card text-brand-text shadow-[0_10px_24px_rgba(16,19,23,0.12)] flex items-center justify-center"
-        aria-label={showAssistant ? "Close AI panel" : "Open AI panel"}
-      >
-        {showAssistant ? <X className="w-5 h-5" /> : <Bot className="w-5 h-5" />}
-      </button>
+        <button
+          type="button"
+          onClick={() => setShowAssistant(prev => !prev)}
+          className="w-14 h-14 rounded-full bg-brand-card text-brand-text shadow-[0_10px_24px_rgba(16,19,23,0.12)] flex items-center justify-center shrink-0"
+          aria-label={showAssistant ? "Close AI panel" : "Open AI panel"}
+        >
+          {showAssistant ? <X className="w-5 h-5" /> : <Bot className="w-5 h-5" />}
+        </button>
+      </div>
 
       {showAssistant && (
         <div className="fixed inset-0 z-[70] bg-black/40 backdrop-blur-[2px]">

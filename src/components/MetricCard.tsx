@@ -26,7 +26,7 @@ export function MetricCard({
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         onClick={() => onOpenDetails?.(metric)}
-        className="bg-brand-card rounded-[32px] p-8 border border-brand-border flex flex-col items-center justify-center relative overflow-hidden group cursor-help h-full"
+        className="bg-brand-card rounded-[32px] p-8 flex flex-col items-center justify-center relative overflow-hidden group cursor-help h-full shadow-[0_8px_22px_rgba(16,19,23,0.08)]"
         id={`metric-card-${metric.id}`}
       >
         <div className="absolute top-6 left-0 w-full flex justify-center px-8">
@@ -55,7 +55,7 @@ export function MetricCard({
           </div>
         </div>
 
-        <div className="mt-8 bg-brand-accent/10 px-6 py-2 rounded-2xl border border-brand-accent/20">
+        <div className="mt-8 bg-brand-accent/10 px-6 py-2 rounded-2xl shadow-[inset_0_0_0_1px_rgba(0,0,0,0.04)]">
           <span className="text-brand-accent text-[10px] font-black uppercase tracking-[0.1em]">System Primed</span>
         </div>
         <button
@@ -94,7 +94,7 @@ export function MetricCard({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => onOpenDetails?.(metric)}
-      className="bg-brand-card rounded-2xl p-6 border border-brand-border flex justify-between items-center group transition-all hover:bg-brand-card hover:border-brand-accent/20 cursor-help relative overflow-hidden"
+      className="bg-brand-card rounded-2xl p-6 flex justify-between items-center group transition-all hover:bg-brand-card cursor-help relative overflow-hidden shadow-[0_8px_22px_rgba(16,19,23,0.08)]"
       id={`metric-card-${metric.id}`}
     >
       <div className="flex flex-col gap-1 z-10">
