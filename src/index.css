@@ -80,6 +80,34 @@
   margin-bottom: 0.5rem;
 }
 
+.chat-markdown {
+  line-height: 1.55;
+  word-break: break-word;
+}
+
+.chat-markdown p {
+  margin-bottom: 0.42rem;
+}
+
+.chat-markdown p:last-child {
+  margin-bottom: 0;
+}
+
+.chat-markdown ul,
+.chat-markdown ol {
+  margin-top: 0.35rem;
+  margin-bottom: 0.35rem;
+  padding-left: 1.05rem;
+}
+
+.chat-markdown li {
+  margin-bottom: 0.22rem;
+}
+
+.chat-markdown strong {
+  font-weight: 700;
+}
+
 .input-field {
   width: 100%;
   border-radius: 0.75rem;

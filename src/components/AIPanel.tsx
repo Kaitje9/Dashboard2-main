@@ -26,15 +26,18 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isComposingInline, setIsComposingInline] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const inlineInputRef = useRef<HTMLInputElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
+    if (bottomRef.current) {
+      bottomRef.current.scrollIntoView({ behavior, block: 'end' });
+    }
+  };
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [messages, isComposingInline]);
+    scrollToBottom('auto');
+  }, [messages, isLoading]);
 
   useEffect(() => {
     onTranscriptChange?.(messages);
@@ -53,6 +56,7 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
       let assistantResponse = '';
       
       setMessages(prev => [...prev, { role: 'model', text: '' }]);
+      scrollToBottom('auto');
 
       const stream = sendMessageStream(newMessages, participantProfile);
       for await (const chunk of stream) {
@@ -62,24 +66,18 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
           const rest = prev.slice(0, -1);
           return [...rest, { ...last, text: assistantResponse }];
         });
+        requestAnimationFrame(() => scrollToBottom('auto'));
       }
     } catch (error) {
       console.error('Chat error:', error);
       setMessages(prev => [...prev, { role: 'model', text: 'Connection issue. Pulse AI offline.' }]);
     } finally {
       setIsLoading(false);
-      setIsComposingInline(false);
     }
   };
 
-  useEffect(() => {
-    if (isComposingInline) {
-      requestAnimationFrame(() => inlineInputRef.current?.focus());
-    }
-  }, [isComposingInline]);
-
   return (
-    <div className="flex flex-col h-full bg-white/14 backdrop-blur-2xl" id="ai-panel">
+    <div className="flex flex-col h-full bg-transparent" id="ai-panel">
       <div className="p-6 flex items-center justify-between">
         <button
           type="button"
@@ -95,7 +93,7 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-6 space-y-6" ref={scrollRef}>
+      <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-5" ref={scrollRef}>
         <AnimatePresence>
           {messages.map((msg, i) => (
             <motion.div
@@ -104,15 +102,15 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
               animate={{ opacity: 1, y: 0 }}
               className={`flex flex-col space-y-2 ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
             >
-              <span className="text-[10px] text-brand-muted uppercase font-bold tracking-tighter">
+              <span className="text-[10px] text-brand-muted uppercase font-semibold tracking-tight">
                 {msg.role === 'user' ? 'You' : 'AI'} • {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </span>
-              <div className={`max-w-[90%] p-4 text-sm leading-relaxed ${
+              <div className={`max-w-[92%] sm:max-w-[88%] p-4 text-[15px] leading-[1.55] ${
                 msg.role === 'user' 
                   ? 'bg-brand-accent text-black rounded-2xl rounded-tr-none font-medium' 
                   : 'bg-white/72 text-brand-text rounded-2xl rounded-tl-none shadow-[0_4px_14px_rgba(16,19,23,0.08)]'
               }`}>
-                <div className="markdown-body">
+                <div className="markdown-body chat-markdown">
                   <ReactMarkdown>{msg.text}</ReactMarkdown>
                 </div>
               </div>
@@ -126,57 +124,29 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
               </div>
             </motion.div>
           )}
-
-          {isComposingInline && (
-            <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="pt-2">
-              <div className="relative flex items-center h-14 rounded-full bg-brand-card shadow-[0_10px_24px_rgba(16,19,23,0.12)] px-3">
-                <input
-                  ref={inlineInputRef}
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                  onBlur={() => {
-                    if (!isLoading && !input.trim()) setIsComposingInline(false);
-                  }}
-                  placeholder="Ask about your data..."
-                  className="w-full bg-transparent px-3 pr-12 text-[16px] text-brand-text focus:outline-none placeholder:text-brand-muted"
-                />
-                <button
-                  onClick={handleSend}
-                  disabled={isLoading}
-                  className="absolute right-3 w-8 h-8 rounded-full bg-white/80 flex items-center justify-center text-brand-muted hover:text-brand-accent transition-colors disabled:opacity-50 shadow-[0_6px_16px_rgba(16,19,23,0.1)]"
-                >
-                  <span className="text-[10px]">⏎</span>
-                </button>
-              </div>
-            </motion.div>
-          )}
         </AnimatePresence>
+        <div ref={bottomRef} />
       </div>
 
-      {!isComposingInline && (
-        <div className="p-4 bg-white/12">
-          <div className="relative flex items-center h-14 rounded-full bg-brand-card shadow-[0_10px_24px_rgba(16,19,23,0.12)] px-3">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onFocus={() => setIsComposingInline(true)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="Ask about your data..."
-              className="w-full bg-transparent px-3 pr-12 text-[16px] text-brand-text focus:outline-none placeholder:text-brand-muted"
-            />
-            <button
-              onClick={handleSend}
-              disabled={isLoading}
-              className="absolute right-3 w-8 h-8 rounded-full bg-white/80 flex items-center justify-center text-brand-muted hover:text-brand-accent transition-colors disabled:opacity-50 shadow-[0_6px_16px_rgba(16,19,23,0.1)]"
-            >
-              <span className="text-[10px]">⏎</span>
-            </button>
-          </div>
+      <div className="p-4 pb-[calc(env(safe-area-inset-bottom)+12px)] bg-white/10 backdrop-blur-2xl">
+        <div className="relative flex items-center h-14 rounded-full bg-brand-card shadow-[0_10px_24px_rgba(16,19,23,0.14)] px-3">
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+            placeholder="Ask about your data..."
+            className="w-full bg-transparent px-3 pr-12 text-[16px] text-brand-text focus:outline-none placeholder:text-brand-muted"
+          />
+          <button
+            onClick={handleSend}
+            disabled={isLoading}
+            className="absolute right-3 w-8 h-8 rounded-full bg-white/85 flex items-center justify-center text-brand-muted hover:text-brand-accent transition-colors disabled:opacity-50 shadow-[0_6px_16px_rgba(16,19,23,0.1)]"
+          >
+            <span className="text-[10px]">⏎</span>
+          </button>
         </div>
-      )}
+      </div>
     </div>
   );
 }

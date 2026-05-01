@@ -368,14 +368,14 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
       </div>
 
       {showAssistant && (
-        <div className="fixed inset-0 z-[70] bg-black/40 backdrop-blur-[2px]">
+        <div className="fixed inset-0 z-[70] bg-black/58 backdrop-blur-[1px]">
           <button
             type="button"
             onClick={() => setShowAssistant(false)}
             className="absolute inset-0"
             aria-label="Close AI panel backdrop"
           />
-          <div className="absolute inset-y-0 right-0 w-full max-w-[390px] bg-white/50 backdrop-blur-xl border-l border-white/40 shadow-[0_10px_24px_rgba(16,19,23,0.2)] z-10">
+          <div className="absolute inset-y-0 right-0 w-full max-w-[390px] bg-transparent z-10">
             <AIPanel
               participantProfile={participantProfile}
               onTranscriptChange={onTranscriptChange}
