@@ -79,7 +79,7 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
 
   return (
     <div className="flex flex-col h-full bg-brand-card" id="ai-panel">
-      <div className="px-4 py-3 border-b border-brand-border flex items-center justify-between bg-[#0d1526]">
+      <div className="px-3 py-2.5 border-b border-brand-border flex items-center justify-between bg-[#313640]">
         <div className="flex items-center gap-2">
           {onClose && (
             <Button
@@ -93,12 +93,12 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
               <ChevronLeft className="w-4 h-4" />
             </Button>
           )}
-          <h2 className="text-sm font-semibold text-brand-text">AI Coach</h2>
+          <h2 className="font-editorial text-lg font-medium text-brand-text">AI Coach</h2>
         </div>
         <div className="w-2 h-2 rounded-full bg-brand-accent animate-pulse" />
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-3 space-y-3">
         <AnimatePresence>
           {messages.map((msg, i) => (
             (() => {
@@ -111,14 +111,14 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
               animate={{ opacity: 1, y: 0 }}
               className={`flex flex-col space-y-2 ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
             >
-              <span className="text-[10px] text-brand-muted uppercase font-semibold tracking-tight">
+              <span className="text-[9px] text-brand-muted uppercase font-semibold tracking-tight">
                 {msg.role === 'user' ? 'You' : 'AI'} • {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </span>
-              <div className={`max-w-[92%] sm:max-w-[88%] p-3.5 text-[14px] leading-[1.55] transition-all duration-200 ${
+              <div className={`max-w-[95%] sm:max-w-[90%] p-3 text-[12px] leading-[1.45] transition-all duration-200 shadow-sm ${
                 msg.role === 'user'
-                  ? 'bg-brand-accent text-white rounded-lg rounded-tr-sm font-medium shadow-sm'
+                  ? 'bg-brand-accent text-[#1f1814] rounded-xl rounded-tr-sm font-semibold'
                   : `text-brand-text rounded-lg rounded-tl-sm border border-brand-border ${
-                      isStreamingBubble ? 'bg-[#152038]' : 'bg-[#111a2c]'
+                      isStreamingBubble ? 'bg-[#3a404b]' : 'bg-[#343944]'
                     }`
               }`}>
                 <div className="markdown-body chat-markdown">
@@ -131,7 +131,7 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
           ))}
           {isLoading && !messages[messages.length - 1].text && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-2 items-center">
-              <div className="bg-[#111a2c] p-3 rounded-lg rounded-tl-sm border border-brand-border flex items-center gap-2">
+              <div className="bg-[#343944] p-2.5 rounded-lg rounded-tl-sm border border-brand-border flex items-center gap-2">
                 <Loader2 className="w-3 h-3 text-brand-muted animate-spin" />
                 <span className="text-[10px] text-brand-muted uppercase font-bold">Thinking...</span>
               </div>
@@ -141,7 +141,7 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
         <div ref={bottomRef} />
       </div>
 
-      <div className="p-3 border-t border-brand-border bg-[#0d1526]">
+      <div className="p-2.5 border-t border-brand-border bg-[#313640]">
         <div className="relative">
           <Input
             type="text"
@@ -149,14 +149,14 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
             placeholder="Ask about your data..."
-            className="h-11 pr-12 bg-[#0b1220]"
+            className="h-10 pr-10 bg-[#3a404b] text-[12px]"
           />
           <Button
             onClick={handleSend}
             disabled={isLoading}
             variant="ghost"
             size="icon"
-            className="absolute right-1.5 top-1.5 h-8 w-8"
+            className="absolute right-1 top-1 h-8 w-8 rounded-lg"
           >
             <span className="text-[10px]">⏎</span>
           </Button>

@@ -40,11 +40,11 @@ export function QuestionnairePage({ onSubmit, onBack }: QuestionnairePageProps) 
     profile.currentGoal;
 
   return (
-    <div className="min-h-[100dvh] bg-brand-bg text-brand-text px-6 py-8 md:py-12">
+    <div className="min-h-[100dvh] bg-brand-bg text-brand-text px-3 md:px-4 py-5 md:py-6">
       <motion.section
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-5xl mx-auto"
+        className="w-full max-w-7xl mx-auto"
       >
         <Card>
           <CardHeader className="space-y-3">

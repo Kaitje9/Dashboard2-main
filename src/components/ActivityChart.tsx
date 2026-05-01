@@ -23,19 +23,19 @@ export function ActivityChart({ data, metric, color }: ActivityChartProps) {
               <stop offset="95%" stopColor={color} stopOpacity={0.04}/>
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" opacity={0.9} />
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#474d5a" opacity={0.9} />
           <XAxis 
             dataKey="date" 
             axisLine={false} 
             tickLine={false} 
-            tick={{ fill: '#64748b', fontSize: 11, fontWeight: 600 }} 
+            tick={{ fill: '#bbb4a6', fontSize: 11, fontWeight: 600 }} 
             dy={10}
           />
           <YAxis hide domain={['auto', 'auto']} />
           <Tooltip 
-            contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '11px', fontWeight: 600, color: '#0f172a', boxShadow: '0 6px 20px rgba(15, 23, 42, 0.08)' }}
+            contentStyle={{ backgroundColor: '#353a45', border: '1px solid #4c5261', borderRadius: '12px', fontSize: '11px', fontWeight: 600, color: '#f0ece4', boxShadow: '0 12px 28px rgba(11, 9, 8, 0.42)' }}
             itemStyle={{ color: color }}
-            cursor={{ stroke: '#cbd5e1', strokeWidth: 1 }}
+            cursor={{ stroke: '#6b7283', strokeWidth: 1 }}
           />
           <Area
             type="monotone"

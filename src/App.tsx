@@ -5,12 +5,11 @@
 
 import { Dashboard } from './components/Dashboard';
 import { WelcomePage } from './components/WelcomePage';
-import { QuestionnairePage } from './components/QuestionnairePage';
 import { ThankYouPage } from './components/ThankYouPage';
 import { useEffect, useState } from 'react';
 import { ChatMessage, ParticipantProfile } from './types';
 
-type AppStep = 'welcome' | 'questionnaire' | 'dashboard' | 'thankyou';
+type AppStep = 'welcome' | 'dashboard' | 'thankyou';
 
 export default function App() {
   const [step, setStep] = useState<AppStep>('welcome');
@@ -23,17 +22,7 @@ export default function App() {
 
   return (
     <div className="min-h-[100dvh] bg-brand-bg overflow-x-hidden" id="app-root">
-      {step === 'welcome' && <WelcomePage onContinue={() => setStep('questionnaire')} />}
-      {step === 'questionnaire' && (
-        <QuestionnairePage
-          onBack={() => setStep('welcome')}
-          onSubmit={(profile) => {
-            setParticipantProfile(profile);
-            setTranscript([]);
-            setStep('dashboard');
-          }}
-        />
-      )}
+      {step === 'welcome' && <WelcomePage onContinue={() => setStep('dashboard')} />}
       {step === 'dashboard' && (
         <Dashboard
           participantProfile={participantProfile}

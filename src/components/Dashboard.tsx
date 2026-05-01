@@ -43,18 +43,18 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
   const snapshotStatus = snapshotAverage >= 70 ? "Strong daily readiness" : snapshotAverage >= 50 ? "Moderate readiness" : "Low readiness";
 
   return (
-    <div className="min-h-[100dvh] bg-brand-bg text-brand-text font-sans" id="main-dashboard-container">
-      <div className="max-w-[1380px] mx-auto px-6 py-6">
-        <header className="flex items-start justify-between mb-6 border-b border-brand-border pb-5">
+    <div className="h-[100dvh] overflow-hidden bg-brand-bg text-brand-text font-sans" id="main-dashboard-container">
+      <div className="max-w-[1800px] h-full mx-auto px-3 md:px-4 py-4 flex flex-col">
+        <header className="flex items-start justify-between mb-5 border-b border-brand-border/80 pb-4 shrink-0">
           <div>
-            <Badge variant="secondary" className="mb-2">Hi {participantName}</Badge>
-            <h1 className="text-3xl md:text-4xl font-bold">{pageTitle}</h1>
+            <Badge variant="secondary" className="mb-2">Good evening, {participantName}</Badge>
+            <h1 className="font-editorial text-4xl md:text-5xl font-medium">{pageTitle}</h1>
           </div>
-          <Button type="button" onClick={onCompleteStudy} variant="outline">Finish</Button>
+          <Button type="button" onClick={onCompleteStudy} variant="outline" className="rounded-xl">Finish</Button>
         </header>
 
-        <div className="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-6">
-          <main className="space-y-6">
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] 2xl:grid-cols-[1fr_340px] gap-5 flex-1 min-h-0">
+          <main className="space-y-6 overflow-y-auto pr-1">
             <Tabs value={activePage} onValueChange={(value) => setActivePage(value as "today" | "fitness" | "biology")}>
               <TabsList>
                 <TabsTrigger value="today">Today</TabsTrigger>
@@ -67,16 +67,16 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
                 <Card>
                   <CardContent className="p-4">
                   <div className="grid grid-cols-3 gap-3">
-                    <RingMeter label="Strain" value={strainPercent} color="#f59e0b" icon={<Zap className="w-4 h-4" />} />
-                    <RingMeter label="Recovery" value={recoveryPercent} color="#65d645" icon={<Gauge className="w-4 h-4" />} />
+                    <RingMeter label="Strain" value={strainPercent} color="#ff8b5e" icon={<Zap className="w-4 h-4" />} />
+                    <RingMeter label="Recovery" value={recoveryPercent} color="#61d49e" icon={<Gauge className="w-4 h-4" />} />
                     <RingMeter label="Sleep" value={sleepPercent} color="#7488ff" icon={<BedDouble className="w-4 h-4" />} />
                   </div>
-                  <div className="mt-4 bg-[#0d1526] rounded-lg px-4 py-3 flex items-center justify-between border border-brand-border">
+                  <div className="mt-4 bg-[#333842] rounded-xl px-4 py-3 flex items-center justify-between border border-brand-border">
                     <div>
                       <p className="text-xs uppercase text-brand-muted">Readiness</p>
                       <p className="text-sm font-semibold">{snapshotStatus}</p>
                     </div>
-                    <p className="text-lg font-semibold">{snapshotAverage}%</p>
+                    <p className="font-editorial text-2xl font-medium">{snapshotAverage}%</p>
                   </div>
                   </CardContent>
                 </Card>
@@ -97,10 +97,10 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
                   </CardHeader>
                   <CardContent className="pt-1">
                   <div className="flex flex-wrap items-center gap-2 mb-4">
-                    <Button size="sm" variant={selectedMetric === "strain" ? "default" : "outline"} onClick={() => setSelectedMetric("strain")}>Strain</Button>
-                    <Button size="sm" variant={selectedMetric === "recovery" ? "default" : "outline"} onClick={() => setSelectedMetric("recovery")}>Recovery</Button>
+                    <Button size="sm" className="rounded-lg" variant={selectedMetric === "strain" ? "default" : "outline"} onClick={() => setSelectedMetric("strain")}>Strain</Button>
+                    <Button size="sm" className="rounded-lg" variant={selectedMetric === "recovery" ? "default" : "outline"} onClick={() => setSelectedMetric("recovery")}>Recovery</Button>
                     {[7, 14, 28].map(range => (
-                      <Button key={range} size="sm" variant={selectedRange === range ? "secondary" : "ghost"} onClick={() => setSelectedRange(range as 7 | 14 | 28)}>
+                      <Button key={range} size="sm" className="rounded-lg" variant={selectedRange === range ? "secondary" : "ghost"} onClick={() => setSelectedRange(range as 7 | 14 | 28)}>
                         {range === 28 ? "4W" : `${range}D`}
                       </Button>
                     ))}
@@ -109,7 +109,7 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
                     <ActivityChart
                       data={chartData}
                       metric={selectedMetric}
-                      color={selectedMetric === "recovery" ? "var(--color-brand-accent)" : "#3E92F9"}
+                      color={selectedMetric === "recovery" ? "#7ac8a0" : "#cf8b65"}
                     />
                   </div>
                   </CardContent>
@@ -128,7 +128,7 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
             </Tabs>
           </main>
 
-          <aside className="bg-brand-card rounded-xl border border-brand-border overflow-hidden h-[calc(100dvh-120px)] sticky top-6 shadow-sm">
+          <aside className="panel-surface rounded-2xl overflow-hidden h-full min-h-0">
             <AIPanel participantProfile={participantProfile} onTranscriptChange={onTranscriptChange} />
           </aside>
         </div>
@@ -139,7 +139,7 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
           <motion.section
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="w-full max-w-2xl bg-brand-card border border-brand-border rounded-xl p-6 relative shadow-xl"
+            className="w-full max-w-2xl panel-surface rounded-2xl p-6 relative"
           >
             <Button
               type="button"
@@ -154,22 +154,22 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
             <h3 className="text-2xl font-light text-brand-text mb-2">{activeMetricDetail.label}</h3>
             <p className="text-sm text-brand-muted mb-6">{activeMetricDetail.description}</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-              <div className="bg-brand-card border border-brand-border rounded-2xl p-4">
+              <div className="bg-[#333842] border border-brand-border rounded-2xl p-4">
               <p className="text-[10px] uppercase tracking-widest text-brand-muted font-semibold mb-2">Trend Signal</p>
                 <p className="text-sm text-brand-text">{activeMetricDetail.trendNote ?? activeMetricDetail.insight}</p>
               </div>
-              <div className="bg-brand-card border border-brand-border rounded-2xl p-4">
+              <div className="bg-[#333842] border border-brand-border rounded-2xl p-4">
               <p className="text-[10px] uppercase tracking-widest text-brand-muted font-semibold mb-2">Goal Impact</p>
                 <p className="text-sm text-brand-text">{activeMetricDetail.goalImpact ?? "Supports your readiness and consistency targets."}</p>
               </div>
             </div>
-            <div className="bg-brand-card border border-brand-border rounded-2xl p-4">
+            <div className="bg-[#333842] border border-brand-border rounded-2xl p-4">
               <p className="text-[10px] uppercase tracking-widest text-brand-muted font-semibold mb-3">Built From</p>
               <div className="flex flex-wrap gap-2">
                 {(activeMetricDetail.composition ?? ["Daily sensor inputs", "Historical baseline", "Trend analysis"]).map(part => (
                   <span
                     key={part}
-                    className="px-3 py-1.5 rounded-lg text-[10px] uppercase tracking-[0.08em] font-semibold bg-slate-100 text-brand-text border border-brand-border"
+                    className="px-3 py-1.5 rounded-lg text-[10px] uppercase tracking-[0.08em] font-semibold bg-[#3b404c] text-[#ddd5c7] border border-brand-border"
                   >
                     {part}
                   </span>
@@ -206,11 +206,11 @@ function RingMeter({
 }) {
   const percentage = Math.max(0, Math.min(100, Math.round(value)));
   return (
-    <div className="rounded-lg border border-brand-border bg-[#0d1526] px-2 py-3 flex flex-col items-center gap-2 shadow-sm">
+    <div className="rounded-xl border border-brand-border bg-[#333842] px-2 py-3 flex flex-col items-center gap-2 shadow-sm">
       <div
         className="w-16 h-16 rounded-full grid place-items-center relative"
         style={{
-          background: `conic-gradient(${color} ${percentage}%, #e7e9ee ${percentage}% 100%)`,
+          background: `conic-gradient(${color} ${percentage}%, #4a4f5e ${percentage}% 100%)`,
         }}
       >
         <div className="absolute inset-[6px] rounded-full bg-brand-card" />
