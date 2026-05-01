@@ -19,10 +19,9 @@ export function DailyRecommendation({
   return (
     <section
       style={{
-        background: "var(--surface-raised)",
-        border: "var(--border-hairline)",
-        borderRadius: "var(--radius-lg)",
         padding: "var(--space-4)",
+        borderBottom: "var(--border-hairline)",
+        marginBottom: "var(--space-3)",
       }}
     >
       <span

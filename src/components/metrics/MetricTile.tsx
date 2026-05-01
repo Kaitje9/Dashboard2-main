@@ -5,6 +5,8 @@ interface MetricTileProps {
   delta?: number;
   deltaUnit?: string;
   status: "in-range" | "above" | "below" | "neutral";
+  miniVisual?: React.ReactNode;
+  compact?: boolean;
 }
 
 const statusColor: Record<MetricTileProps["status"], string> = {
@@ -21,13 +23,15 @@ export function MetricTile({
   delta,
   deltaUnit,
   status,
+  miniVisual,
+  compact = false,
 }: MetricTileProps) {
   const color = statusColor[status];
   return (
     <article
       style={{
-        minHeight: 110,
-        padding: "var(--space-4)",
+        minHeight: 100,
+        padding: compact ? "12px 14px" : "var(--space-4)",
         background: "var(--surface-raised)",
         border: "var(--border-hairline)",
         borderRadius: "var(--radius-lg)",
@@ -37,7 +41,16 @@ export function MetricTile({
         justifyContent: "space-between",
       }}
     >
-      <span className="label-caps">{label}</span>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "var(--space-2)" }}>
+        <span className="label-caps">{label}</span>
+        {typeof delta === "number" && (
+          <span style={{ fontSize: 11, color, fontVariantNumeric: "tabular-nums lining-nums" }}>
+            {delta > 0 ? "+" : ""}
+            {delta}
+            {deltaUnit ? ` ${deltaUnit}` : ""}
+          </span>
+        )}
+      </div>
       <div style={{ display: "flex", alignItems: "baseline", gap: "var(--space-2)" }}>
         <span
           style={{
@@ -50,15 +63,7 @@ export function MetricTile({
         </span>
         <span style={{ fontSize: "var(--text-sm)", color: "var(--text-tertiary)" }}>{unit}</span>
       </div>
-      <span
-        style={{
-          fontSize: "var(--text-sm)",
-          color,
-          fontVariantNumeric: "tabular-nums lining-nums",
-        }}
-      >
-        {typeof delta === "number" ? `${delta > 0 ? "+" : ""}${delta}${deltaUnit ? ` ${deltaUnit}` : ""}` : "No delta"}
-      </span>
+      <div>{miniVisual}</div>
     </article>
   );
 }

@@ -2,7 +2,7 @@ import systemPrompt from "./coach-system.md?raw";
 
 export const coachConfig = {
   systemPrompt,
-  model: "claude-sonnet-4-5",
+  model: "gemini-2.5-flash-lite",
   temperature: 0.7,
   maxTokens: 600,
   features: {

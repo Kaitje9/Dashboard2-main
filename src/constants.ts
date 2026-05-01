@@ -100,6 +100,8 @@ function toSleepHours(minutes: number) {
 
 const rows = parseCsv(csvRaw);
 const latest = last(rows);
+export const HEALTH_DAILY_ROWS = rows;
+export const HEALTH_LATEST_DAY = latest;
 
 const hrvSeries = rows.map((row) => row.hrv_morning_ms);
 const rhrSeries = rows.map((row) => row.rhr_morning_bpm);

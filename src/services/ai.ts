@@ -25,8 +25,6 @@ Current User Data Summary:
 ${HEALTH_DATA_CONTEXT}
 `;
 
-const MODEL_NAME = "gemini-2.5-flash-lite";
-
 function buildParticipantContext(profile: ParticipantProfile | null) {
   if (!profile) return "";
 
@@ -45,7 +43,8 @@ Participant Profile:
 
 export async function* sendMessageStream(
   history: ChatMessage[],
-  participantProfile: ParticipantProfile | null = null
+  participantProfile: ParticipantProfile | null = null,
+  activeTab: "today" | "recovery" | "sleep" | "activity" = "today",
 ) {
   if (!ai) {
     yield "AI is not configured yet. Add `VITE_GEMINI_API_KEY` to your `.env.local` file and restart the dev server.";
@@ -59,11 +58,12 @@ export async function* sendMessageStream(
     }));
 
     const chat = ai.chats.create({
-      model: MODEL_NAME,
+      model: coachConfig.model,
       config: {
         systemInstruction:
           HEALTH_COACH_SYSTEM_INSTRUCTION +
           `\n\n${buildParticipantContext(participantProfile)}` +
+          `\n\nActive dashboard tab: ${activeTab}` +
           "\n\nResponse style:\n- 2-3 concise lines in natural language.\n- No section headings unless user asks.\n- Include one specific action and one measurable target.\n- Finish with one reflective question.\n\nResearch Context: This assistant is part of a study on how LLMs improve the reflection-to-action loop for health data. Prioritize explaining why a metric matters and what specific lifestyle change can address it.",
       },
       history: chatHistory,

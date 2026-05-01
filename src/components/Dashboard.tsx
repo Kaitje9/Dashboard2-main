@@ -12,10 +12,11 @@ import { MOCK_METRICS } from "../constants";
 import { ChatMessage, HealthMetric, ParticipantProfile } from "../types";
 import { Button } from "./ui/button";
 import { MetricCard } from "./metrics/MetricCard";
-import { EditorialHeader } from "./layout/EditorialHeader";
+import { TopBar } from "./layout/TopBar";
 import { TodayTab } from "./tabs/TodayTab";
+import { RecoveryTab } from "./tabs/RecoveryTab";
 import { DailyRecommendation } from "./coach/DailyRecommendation";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { Tabs, TabsContent } from "./ui/tabs";
 
 interface DashboardProps {
   participantProfile: ParticipantProfile | null;
@@ -28,77 +29,40 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
   const [activePage, setActivePage] = useState<"today" | "recovery" | "sleep" | "activity">("today");
   const participantName = participantProfile?.firstName?.trim();
 
-  const hrvMetric = MOCK_METRICS.find(metric => metric.id === "hrv");
-  const rhrMetric = MOCK_METRICS.find(metric => metric.id === "rhr");
-
   return (
     <div className="h-[100dvh] overflow-hidden bg-brand-bg text-brand-text font-sans" id="main-dashboard-container">
-      <div className="max-w-[1800px] h-full mx-auto px-3 md:px-4 py-4 flex flex-col">
-        <header className="mb-0 shrink-0">
-          <EditorialHeader name={participantName} />
-        </header>
+      <TopBar name={participantName} activeTab={activePage} onTabChange={setActivePage} />
+      <div
+        style={{
+          maxWidth: "var(--container-max)",
+          margin: "0 auto",
+          padding: "var(--space-5)",
+          height: "calc(100vh - 48px - (2 * var(--space-5)))",
+        }}
+      >
 
         <Tabs
           value={activePage}
           onValueChange={(value) => setActivePage(value as "today" | "recovery" | "sleep" | "activity")}
-          className="flex-1 min-h-0 flex flex-col"
+          className="h-full min-h-0"
         >
-          <div className="mb-4 shrink-0">
-            <TabsList className="w-full justify-start">
-              <TabsTrigger value="today">Today</TabsTrigger>
-              <TabsTrigger value="recovery">Recovery</TabsTrigger>
-              <TabsTrigger value="sleep">Sleep</TabsTrigger>
-              <TabsTrigger value="activity">Activity</TabsTrigger>
-            </TabsList>
-          </div>
-
-          <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] 2xl:grid-cols-[1fr_340px] gap-5 flex-1 min-h-0 items-start">
-            <main className="space-y-4 min-h-0 overflow-y-auto pr-1">
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "minmax(0, 1fr) 280px",
+              gap: "var(--space-4)",
+              height: "100%",
+              minHeight: 0,
+              alignItems: "start",
+            }}
+          >
+            <main className="space-y-4 min-h-0 overflow-y-auto">
               <TabsContent value="today" className="space-y-4 mt-0">
                 <TodayTab metrics={MOCK_METRICS} />
               </TabsContent>
 
               <TabsContent value="recovery" className="space-y-4 mt-0">
-                <section>
-                  <h2>Recovery metrics</h2>
-                  <p className="lead">
-                    Daily recovery state based on autonomic signals and cardiovascular rest response.
-                  </p>
-                </section>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {hrvMetric && (
-                    <MetricCard
-                      label={hrvMetric.label}
-                      value={hrvMetric.value}
-                      unit={hrvMetric.unit}
-                      trend={mapTrend(hrvMetric.trend)}
-                      delta={signedDelta(hrvMetric)}
-                      deltaSuffix={hrvMetric.unit}
-                      baseline={buildBaselineText(hrvMetric)}
-                      unusual={hrvMetric.unusual}
-                      sparklineData={hrvMetric.sparkline}
-                      baselineRange={hrvMetric.baselineRange}
-                      sentence={hrvMetric.sentence}
-                      onClick={() => setActiveMetricDetail(hrvMetric)}
-                    />
-                  )}
-                  {rhrMetric && (
-                    <MetricCard
-                      label={rhrMetric.label}
-                      value={rhrMetric.value}
-                      unit={rhrMetric.unit}
-                      trend={mapTrend(rhrMetric.trend)}
-                      delta={signedDelta(rhrMetric)}
-                      deltaSuffix={rhrMetric.unit}
-                      baseline={buildBaselineText(rhrMetric)}
-                      unusual={rhrMetric.unusual}
-                      sparklineData={rhrMetric.sparkline}
-                      baselineRange={rhrMetric.baselineRange}
-                      sentence={rhrMetric.sentence}
-                      onClick={() => setActiveMetricDetail(rhrMetric)}
-                    />
-                  )}
-                </div>
+                <RecoveryTab metrics={MOCK_METRICS} />
               </TabsContent>
 
               <TabsContent value="sleep" className="space-y-4">
@@ -112,35 +76,15 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
               </TabsContent>
             </main>
 
-            <aside className="space-y-3 h-full min-h-0 flex flex-col">
-              {activePage === "today" ? (
-                <>
-                  <DailyRecommendation />
-                  <div className="panel-surface rounded-2xl overflow-hidden flex-1 min-h-0">
-                    <AIPanel participantProfile={participantProfile} onTranscriptChange={onTranscriptChange} />
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="panel-surface rounded-2xl overflow-hidden max-h-[480px] min-h-[380px]">
-                    <AIPanel participantProfile={participantProfile} onTranscriptChange={onTranscriptChange} />
-                  </div>
-                  <section
-                    style={{
-                      background: "var(--surface-raised)",
-                      border: "var(--border-hairline)",
-                      borderRadius: "var(--radius-lg)",
-                      padding: "var(--space-5)",
-                    }}
-                  >
-                    <h3>This week's pattern</h3>
-                    <p className="lead" style={{ marginTop: "var(--space-2)" }}>
-                      Your HRV held steady through Wednesday, then dipped after two consecutive late nights.
-                      Sleep consistency is your weakest link this week.
-                    </p>
-                  </section>
-                </>
-              )}
+            <aside className="panel-surface rounded-2xl overflow-hidden h-full min-h-0 flex flex-col">
+              <DailyRecommendation />
+              <div className="min-h-0 flex-1">
+                <AIPanel
+                  participantProfile={participantProfile}
+                  activeTab={activePage}
+                  onTranscriptChange={onTranscriptChange}
+                />
+              </div>
             </aside>
           </div>
         </Tabs>

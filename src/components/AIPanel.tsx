@@ -5,21 +5,20 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Loader2, ChevronLeft } from 'lucide-react';
+import { Loader2, SendHorizontal } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { ChatMessage, ParticipantProfile } from '../types';
 import { INITIAL_AI_GREETING } from '../constants';
 import { sendMessageStream } from '../services/ai';
 import { Button } from './ui/button';
-import { Input } from './ui/input';
 
 interface AIPanelProps {
   participantProfile: ParticipantProfile | null;
+  activeTab: "today" | "recovery" | "sleep" | "activity";
   onTranscriptChange?: (messages: ChatMessage[]) => void;
-  onClose?: () => void;
 }
 
-export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIPanelProps) {
+export function AIPanel({ participantProfile, activeTab, onTranscriptChange }: AIPanelProps) {
   const greeting = participantProfile?.firstName
     ? `Hi ${participantProfile.firstName}, ${INITIAL_AI_GREETING}`
     : INITIAL_AI_GREETING;
@@ -28,6 +27,7 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [rows, setRows] = useState(1);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
@@ -59,7 +59,7 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
       setMessages(prev => [...prev, { role: 'model', text: '' }]);
       scrollToBottom('auto');
 
-      const stream = sendMessageStream(newMessages, participantProfile);
+      const stream = sendMessageStream(newMessages, participantProfile, activeTab);
       for await (const chunk of stream) {
         assistantResponse += chunk;
         setMessages(prev => {
@@ -78,26 +78,7 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
   };
 
   return (
-    <div className="flex flex-col h-full bg-brand-card" id="ai-panel">
-      <div className="px-3 py-2.5 border-b border-brand-border flex items-center justify-between bg-[#313640]">
-        <div className="flex items-center gap-2">
-          {onClose && (
-            <Button
-              type="button"
-              onClick={onClose}
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              aria-label="Close chat panel"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </Button>
-          )}
-          <h2 className="font-editorial text-lg font-medium text-brand-text">AI Coach</h2>
-        </div>
-        <div className="w-2 h-2 rounded-full bg-brand-accent animate-pulse" />
-      </div>
-
+    <div className="flex flex-col h-full bg-transparent" id="ai-panel">
       <div className="flex-1 overflow-y-auto p-3 space-y-3">
         <AnimatePresence>
           {messages.map((msg, i) => (
@@ -109,19 +90,21 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
               key={i}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className={`flex flex-col space-y-2 ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
+              className={`flex flex-col space-y-1.5 ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
             >
-              <span className="text-[9px] text-brand-muted uppercase font-semibold tracking-tight">
-                {msg.role === 'user' ? 'You' : 'AI'} • {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-              </span>
-              <div className={`max-w-[95%] sm:max-w-[90%] p-3 text-[12px] leading-[1.45] transition-all duration-200 shadow-sm ${
+              {msg.role === 'model' && (
+                <span className="text-[10px] text-brand-muted">
+                  {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              )}
+              <div className={`max-w-[100%] p-3 transition-all duration-200 ${
                 msg.role === 'user'
-                  ? 'bg-brand-accent text-[#1f1814] rounded-xl rounded-tr-sm font-semibold'
+                  ? 'bg-brand-accent text-[#1f1814] rounded-xl rounded-tr-sm text-[12px] leading-[1.4] font-medium'
                   : `text-brand-text rounded-lg rounded-tl-sm border border-brand-border ${
-                      isStreamingBubble ? 'bg-[#3a404b]' : 'bg-[#343944]'
+                      isStreamingBubble ? 'bg-[#3a404b]' : 'bg-[var(--surface-raised)]'
                     }`
               }`}>
-                <div className="markdown-body chat-markdown">
+                <div className="markdown-body chat-markdown text-[13px] leading-[1.5]">
                   <ReactMarkdown>{msg.text}</ReactMarkdown>
                 </div>
               </div>
@@ -141,24 +124,34 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
         <div ref={bottomRef} />
       </div>
 
-      <div className="p-2.5 border-t border-brand-border bg-[#313640]">
+      <div className="p-2.5 border-t border-brand-border bg-transparent sticky bottom-0">
         <div className="relative">
-          <Input
-            type="text"
+          <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+            onInput={(e) => {
+              const nextRows = Math.min(3, Math.max(1, Math.ceil((e.currentTarget.value.length + 1) / 38)));
+              setRows(nextRows);
+            }}
+            rows={rows}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+              }
+            }}
             placeholder="Ask about your data..."
-            className="h-10 pr-10 bg-[#3a404b] text-[12px]"
+            className="w-full resize-none rounded-md border border-brand-border bg-[#3a404b] text-[12px] leading-[1.4] text-brand-text px-3 py-2 pr-9 outline-none"
           />
           <Button
             onClick={handleSend}
             disabled={isLoading}
             variant="ghost"
             size="icon"
-            className="absolute right-1 top-1 h-8 w-8 rounded-lg"
+            className="absolute right-1 bottom-1 h-7 w-7 rounded-md opacity-80"
+            aria-label="Send message"
           >
-            <span className="text-[10px]">⏎</span>
+            <SendHorizontal className="w-3.5 h-3.5" />
           </Button>
         </div>
       </div>
