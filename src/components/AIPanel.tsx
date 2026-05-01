@@ -26,8 +26,6 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isInputFocused, setIsInputFocused] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
@@ -78,23 +76,25 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
   };
 
   return (
-    <div className="flex flex-col h-full bg-transparent" id="ai-panel">
-      <div className="p-6 flex items-center justify-between">
-        <button
-          type="button"
-          onClick={onClose}
-          className="w-10 h-10 rounded-full bg-brand-card text-brand-muted shadow-[0_8px_18px_rgba(16,19,23,0.14)] flex items-center justify-center"
-          aria-label="Close chat panel"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-        <div className="flex items-center gap-3">
-        <div className="w-2 h-2 rounded-full bg-brand-accent animate-pulse shadow-[0_0_8px_rgba(229,249,62,0.6)]"></div>
-        <h2 className="text-sm font-bold text-brand-text uppercase tracking-widest font-sans">Pulse Intelligence</h2>
+    <div className="flex flex-col h-full bg-brand-card" id="ai-panel">
+      <div className="px-4 py-3 border-b border-brand-border flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          {onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-8 h-8 rounded-md border border-brand-border text-brand-muted flex items-center justify-center"
+              aria-label="Close chat panel"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+          )}
+          <h2 className="text-sm font-semibold text-brand-text">AI Coach</h2>
         </div>
+        <div className="w-2 h-2 rounded-full bg-brand-accent animate-pulse" />
       </div>
 
-      <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-5" ref={scrollRef}>
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
         <AnimatePresence>
           {messages.map((msg, i) => (
             (() => {
@@ -112,9 +112,9 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
               </span>
               <div className={`max-w-[92%] sm:max-w-[88%] p-4 text-[15px] leading-[1.55] transition-all duration-200 ${
                 msg.role === 'user'
-                  ? 'bg-brand-accent text-black rounded-2xl rounded-tr-none font-medium shadow-[0_4px_14px_rgba(16,19,23,0.08)]'
-                  : `text-brand-text rounded-2xl rounded-tl-none shadow-[0_4px_14px_rgba(16,19,23,0.08)] ${
-                      isStreamingBubble ? 'bg-white/58' : isInputFocused ? 'bg-white/80' : 'bg-white/72'
+                  ? 'bg-brand-accent text-black rounded-lg rounded-tr-sm font-medium'
+                  : `text-brand-text rounded-lg rounded-tl-sm border border-brand-border ${
+                      isStreamingBubble ? 'bg-brand-bg' : 'bg-white'
                     }`
               }`}>
                 <div className="markdown-body chat-markdown">
@@ -127,9 +127,9 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
           ))}
           {isLoading && !messages[messages.length - 1].text && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-2 items-center">
-              <div className="bg-white/72 p-3 rounded-xl rounded-tl-none flex items-center gap-2 shadow-[0_4px_14px_rgba(16,19,23,0.08)]">
+              <div className="bg-white p-3 rounded-lg rounded-tl-sm border border-brand-border flex items-center gap-2">
                 <Loader2 className="w-3 h-3 text-brand-muted animate-spin" />
-                <span className="text-[10px] text-brand-muted uppercase font-bold">Analyzing Bio-Sync...</span>
+                <span className="text-[10px] text-brand-muted uppercase font-bold">Thinking...</span>
               </div>
             </motion.div>
           )}
@@ -137,14 +137,12 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
         <div ref={bottomRef} />
       </div>
 
-      <div className="p-4 pb-[calc(env(safe-area-inset-bottom)+12px)] bg-white/10 backdrop-blur-2xl">
-        <div className="relative flex items-center h-14 rounded-full bg-brand-card shadow-[0_10px_24px_rgba(16,19,23,0.14)] px-3">
+      <div className="p-3 border-t border-brand-border bg-brand-bg">
+        <div className="relative flex items-center h-12 rounded-lg bg-white border border-brand-border px-2">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onFocus={() => setIsInputFocused(true)}
-            onBlur={() => setIsInputFocused(false)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
             placeholder="Ask about your data..."
             className="w-full bg-transparent px-3 pr-12 text-[16px] text-brand-text focus:outline-none placeholder:text-brand-muted"
@@ -152,7 +150,7 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
           <button
             onClick={handleSend}
             disabled={isLoading}
-            className="absolute right-3 w-8 h-8 rounded-full bg-white/85 flex items-center justify-center text-brand-muted hover:text-brand-accent transition-colors disabled:opacity-50 shadow-[0_6px_16px_rgba(16,19,23,0.1)]"
+            className="absolute right-2 w-8 h-8 rounded-md bg-brand-bg border border-brand-border flex items-center justify-center text-brand-muted hover:text-brand-accent transition-colors disabled:opacity-50"
           >
             <span className="text-[10px]">⏎</span>
           </button>
