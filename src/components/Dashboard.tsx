@@ -5,7 +5,7 @@
 
 import { motion } from "motion/react";
 import { Moon, ShieldCheck, X, Home, BarChart3, HeartPulse, Bot, ChevronDown, Zap, BedDouble, Gauge } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { ReactNode } from "react";
 import { MetricCard } from "./MetricCard";
 import { ActivityChart } from "./ActivityChart";
@@ -27,16 +27,13 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
   const [showAssistant, setShowAssistant] = useState(false);
   const [activePage, setActivePage] = useState<"today" | "fitness" | "biology">("today");
   const [isNavCollapsed, setIsNavCollapsed] = useState(false);
-  const [lastScrollTop, setLastScrollTop] = useState(0);
+  const previousScrollTopRef = useRef(0);
   const chartData = useMemo(() => {
     const rangeData = MOCK_DAILY_HISTORY.slice(-selectedRange);
     return chartFocus === "latest7" ? rangeData.slice(-7) : rangeData;
   }, [selectedRange, chartFocus]);
   const participantName = participantProfile?.firstName?.trim() || "there";
   const pageTitle = activePage === "today" ? "Today" : activePage === "fitness" ? "Fitness" : "Biology";
-  const encouragement = participantProfile
-    ? `You reported feeling ${participantProfile.recoveryFeeling.toLowerCase()} today with ${participantProfile.weeklySleepQuality.toLowerCase()} sleep this week. Keep building toward: ${participantProfile.currentGoal}.`
-    : "You are building consistency. Small daily wins compound quickly when recovery and sleep stay aligned.";
   const strainMetric = MOCK_METRICS.find(metric => metric.id === "strain");
   const recoveryMetric = MOCK_METRICS.find(metric => metric.id === "recovery");
   const sleepMetric = MOCK_METRICS.find(metric => metric.id === "sleep");
@@ -55,15 +52,16 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
         onScroll={(event) => {
           const target = event.currentTarget;
           const currentScrollTop = target.scrollTop;
-          const isScrollingDown = currentScrollTop > lastScrollTop;
-          setLastScrollTop(currentScrollTop);
+          const previousScrollTop = previousScrollTopRef.current;
+          const isScrollingDown = currentScrollTop > previousScrollTop;
+          previousScrollTopRef.current = currentScrollTop;
           if (currentScrollTop < 24) {
             setIsNavCollapsed(false);
             return;
           }
-          if (isScrollingDown && currentScrollTop > 56) {
+          if (isScrollingDown && currentScrollTop > 48) {
             setIsNavCollapsed(true);
-          } else if (!isScrollingDown) {
+          } else if (!isScrollingDown && Math.abs(currentScrollTop - previousScrollTop) > 8) {
             setIsNavCollapsed(false);
           }
         }}
@@ -90,28 +88,13 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
 
         {/* Dashboard Grid */}
         <div className="px-4 md:px-10 pb-10 space-y-5 max-w-6xl mx-auto w-full">
-          <motion.section
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-brand-card border border-brand-border rounded-[18px] px-4 py-3 flex items-center justify-between shadow-[0_4px_14px_rgba(16,19,23,0.05)]"
-          >
-            <p className="text-[12px] text-brand-muted truncate pr-3">{encouragement}</p>
-            <button
-              type="button"
-              onClick={onCompleteStudy}
-              className="px-3 py-1.5 rounded-full border border-brand-border text-[10px] uppercase tracking-[0.12em] font-semibold text-brand-muted shrink-0"
-            >
-              Finish
-            </button>
-          </motion.section>
-
           {activePage === "today" && (
             <div className="space-y-5">
               <SectionTitle title="Daily Snapshot" subtitle="Last sync 09:24" />
               <div className="bg-brand-card border border-brand-border rounded-[24px] p-5 shadow-[0_6px_18px_rgba(16,19,23,0.06)] space-y-4">
                 <div className="grid grid-cols-3 gap-2 sm:gap-4">
                   <RingMeter
-                    label="Belasting"
+                    label="Strain"
                     value={strainPercent}
                     max={100}
                     color="#f59e0b"
@@ -119,7 +102,7 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
                     suffix="%"
                   />
                   <RingMeter
-                    label="Herstel"
+                    label="Recovery"
                     value={recoveryPercent}
                     max={100}
                     color="#65d645"
@@ -127,7 +110,7 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
                     icon={<Gauge className="w-3.5 h-3.5" />}
                   />
                   <RingMeter
-                    label="Slaap"
+                    label="Sleep"
                     value={sleepPercent}
                     max={100}
                     color="#7488ff"
@@ -350,10 +333,10 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
 
       {/* Mobile/desktop page tabs */}
       <nav
-        className={`fixed bottom-4 z-50 bg-brand-card border border-brand-border rounded-full shadow-[0_10px_24px_rgba(16,19,23,0.12)] p-1.5 flex items-center gap-1 transition-all duration-300 ${
+        className={`fixed bottom-5 z-50 bg-brand-card border border-brand-border shadow-[0_10px_24px_rgba(16,19,23,0.12)] transition-all duration-300 ${
           isNavCollapsed
-            ? "left-4 w-[64px] justify-center"
-            : "left-1/2 -translate-x-1/2 w-[min(88vw,420px)]"
+            ? "left-4 w-14 h-14 rounded-full flex items-center justify-center"
+            : "left-1/2 -translate-x-1/2 w-[min(78vw,300px)] h-14 rounded-full px-2 py-1 flex items-center justify-between"
         }`}
       >
         <TabButton
@@ -428,12 +411,12 @@ function TabButton({
     <button
       type="button"
       onClick={onClick}
-      className={`${collapsed ? "w-12 h-10" : "flex-1 px-3 py-2"} rounded-full text-[11px] font-semibold transition-colors flex items-center justify-center gap-1.5 ${
+      className={`${collapsed ? "w-12 h-12" : "w-[84px] h-12"} rounded-full text-[10px] font-semibold transition-colors flex flex-col items-center justify-center gap-0.5 ${
         active ? "bg-brand-bg text-brand-text" : "text-brand-muted hover:text-brand-text"
       }`}
     >
       {icon}
-      {!collapsed && <span>{label}</span>}
+      {!collapsed && <span className="leading-none">{label}</span>}
     </button>
   );
 }
