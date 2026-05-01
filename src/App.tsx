@@ -27,7 +27,7 @@ export default function App() {
   }, [theme]);
 
   return (
-    <div className="min-h-screen bg-brand-bg" id="app-root">
+    <div className="min-h-[100dvh] bg-brand-bg" id="app-root">
       <button
         type="button"
         onClick={() => setTheme(prev => (prev === 'dark' ? 'light' : 'dark'))}

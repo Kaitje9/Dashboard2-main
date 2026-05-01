@@ -51,7 +51,7 @@ export function ThankYouPage({ participantProfile, transcript, onRestart }: Than
   };
 
   return (
-    <div className="min-h-screen bg-brand-bg text-brand-text px-6 py-10 flex items-center justify-center">
+    <div className="min-h-[100dvh] bg-brand-bg text-brand-text px-6 py-10 flex items-center justify-center">
       <motion.section
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}

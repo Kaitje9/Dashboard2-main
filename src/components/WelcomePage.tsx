@@ -6,7 +6,7 @@ interface WelcomePageProps {
 
 export function WelcomePage({ onContinue }: WelcomePageProps) {
   return (
-    <div className="min-h-screen bg-brand-bg text-brand-text flex items-center justify-center px-6">
+    <div className="min-h-[100dvh] bg-brand-bg text-brand-text flex items-center justify-center px-6">
       <motion.section
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}

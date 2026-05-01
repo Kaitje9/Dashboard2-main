@@ -34,7 +34,7 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
     : "You are building consistency. Small daily wins compound quickly when recovery and sleep stay aligned.";
 
   return (
-    <div className="flex flex-col lg:flex-row h-screen bg-brand-bg text-brand-text overflow-hidden font-sans" id="main-dashboard-container">
+    <div className="flex flex-col lg:flex-row min-h-[100dvh] lg:h-[100dvh] bg-brand-bg text-brand-text overflow-hidden font-sans" id="main-dashboard-container">
       {/* Main Content Area */}
       <main className="flex-1 overflow-y-auto" id="dashboard-content">
         {/* Header (Refined with Search) */}
@@ -162,7 +162,7 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
                                 onClick={() => setSelectedRange(range as 7 | 14 | 28)}
                                 className={`px-3 py-1.5 rounded-lg text-[10px] uppercase font-black tracking-widest transition-colors ${
                                   selectedRange === range
-                                    ? "bg-white/10 text-white"
+                                    ? "bg-white/10 text-brand-text"
                                     : "text-brand-muted hover:text-brand-text"
                                 }`}
                               >
