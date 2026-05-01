@@ -15,6 +15,14 @@
 }
 
 @layer base {
+  html,
+  body,
+  #root {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
   body {
     @apply bg-brand-bg text-brand-text antialiased;
     font-family: var(--font-sans);
@@ -23,6 +31,7 @@
 }
 
 :root[data-theme="light"] {
+  --color-brand-accent: #33c18f;
   --color-brand-bg: #f5f6fa;
   --color-brand-card: #ffffff;
   --color-brand-border: #d7dbe3;

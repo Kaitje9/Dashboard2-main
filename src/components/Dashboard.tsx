@@ -4,8 +4,9 @@
  */
 
 import { motion } from "motion/react";
-import { Activity, Zap, Moon, Heart, Bell, Menu, User, ShieldCheck, Search, History, Users, X } from "lucide-react";
+import { Moon, Bell, Menu, ShieldCheck, History, Users, X, Home, BarChart3, HeartPulse, Bot } from "lucide-react";
 import { useMemo, useState } from "react";
+import { ReactNode } from "react";
 import { MetricCard } from "./MetricCard";
 import { ActivityChart } from "./ActivityChart";
 import { AIPanel } from "./AIPanel";
@@ -24,41 +25,32 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
   const [chartFocus, setChartFocus] = useState<"full" | "latest7">("full");
   const [activeMetricDetail, setActiveMetricDetail] = useState<HealthMetric | null>(null);
   const [showAssistant, setShowAssistant] = useState(false);
+  const [activePage, setActivePage] = useState<"today" | "fitness" | "biology">("today");
   const chartData = useMemo(() => {
     const rangeData = MOCK_DAILY_HISTORY.slice(-selectedRange);
     return chartFocus === "latest7" ? rangeData.slice(-7) : rangeData;
   }, [selectedRange, chartFocus]);
   const participantName = participantProfile?.firstName?.trim() || "there";
+  const pageTitle = activePage === "today" ? "Today" : activePage === "fitness" ? "Fitness" : "Biology";
   const encouragement = participantProfile
     ? `You reported feeling ${participantProfile.recoveryFeeling.toLowerCase()} today with ${participantProfile.weeklySleepQuality.toLowerCase()} sleep this week. Keep building toward: ${participantProfile.currentGoal}.`
     : "You are building consistency. Small daily wins compound quickly when recovery and sleep stay aligned.";
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-[100dvh] lg:h-[100dvh] bg-brand-bg text-brand-text overflow-hidden font-sans" id="main-dashboard-container">
+    <div className="flex flex-col min-h-[100dvh] lg:h-[100dvh] bg-brand-bg text-brand-text overflow-x-hidden font-sans" id="main-dashboard-container">
       {/* Main Content Area */}
-      <main className="flex-1 overflow-y-auto" id="dashboard-content">
+      <main className="flex-1 overflow-y-auto overflow-x-hidden pb-24 lg:pb-8" id="dashboard-content">
         {/* Header (Refined with Search) */}
-        <header className="px-10 py-8 flex items-center justify-between bg-brand-bg/95 backdrop-blur-xl sticky top-0 z-30">
+        <header className="px-4 md:px-10 py-5 md:py-7 flex items-center justify-between bg-brand-bg/95 backdrop-blur-xl sticky top-0 z-30">
           <div className="flex items-center gap-6">
             <Menu className="w-5 h-5 lg:hidden" />
             <div className="flex flex-col">
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-muted mb-1">Status Report</span>
-              <h1 className="text-2xl font-light tracking-tight">Hi {participantName}, your health overview</h1>
+              <span className="text-[11px] font-semibold text-brand-muted mb-1">Hi {participantName}</span>
+              <h1 className="text-4xl leading-none font-semibold tracking-tight">{pageTitle}</h1>
             </div>
           </div>
 
-          <div className="flex-1 max-w-2xl mx-12 hidden md:block">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted" />
-              <input 
-                type="text" 
-                placeholder="Search across biosensors..." 
-                className="w-full bg-brand-card border border-brand-border rounded-xl py-3 pl-12 pr-4 text-xs text-brand-text focus:outline-none focus:border-brand-accent/30 transition-all placeholder:text-brand-muted"
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <div className="flex items-center gap-1 p-1 bg-brand-border rounded-xl border border-white/5">
                 <button className="p-2 text-brand-muted hover:text-brand-text hover:bg-brand-bg rounded-lg transition-all"><History className="w-4 h-4" /></button>
                 <button className="p-2 text-brand-muted hover:text-brand-text hover:bg-brand-bg rounded-lg transition-all"><Users className="w-4 h-4" /></button>
@@ -67,17 +59,6 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
                     <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-brand-accent rounded-full border border-brand-bg" />
                 </button>
             </div>
-            <button
-              type="button"
-              onClick={() => setShowAssistant(prev => !prev)}
-              className={`px-4 py-2 rounded-xl border text-[10px] uppercase tracking-[0.14em] font-black transition-colors ${
-                showAssistant
-                  ? "border-brand-accent text-brand-accent bg-brand-accent/10"
-                  : "border-brand-border text-brand-muted hover:text-brand-text"
-              }`}
-            >
-              {showAssistant ? "Hide Coach" : "Show Coach"}
-            </button>
             <button
               type="button"
               onClick={onCompleteStudy}
@@ -89,11 +70,11 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
         </header>
 
         {/* Dashboard Grid */}
-        <div className="px-10 pb-10 space-y-10">
+        <div className="px-4 md:px-10 pb-10 space-y-8 max-w-6xl mx-auto w-full">
           <motion.section
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-brand-card border border-brand-border rounded-[24px] p-6 md:p-8 flex flex-col md:flex-row gap-4 md:items-center md:justify-between"
+            className="bg-brand-card border border-brand-border rounded-[24px] p-5 md:p-7 flex flex-col md:flex-row gap-4 md:items-center md:justify-between shadow-[0_4px_14px_rgba(16,19,23,0.06)]"
           >
             <div>
               <p className="text-[10px] uppercase tracking-[0.2em] font-black text-brand-accent mb-2">Personal Brief</p>
@@ -104,155 +85,158 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
             </div>
           </motion.section>
 
-          {/* Top Performance Row */}
-          <div className="flex flex-col xl:flex-row gap-8">
-            {/* Primary Analysis Column */}
-            <div className="w-full xl:w-[35%] flex flex-col gap-6">
-               <div className="h-full flex flex-col">
-                 <MetricCard metric={MOCK_METRICS[0]} onOpenDetails={setActiveMetricDetail} /> {/* Recovery Circle */}
-               </div>
-               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
-                  <MetricCard metric={MOCK_METRICS[3]} onOpenDetails={setActiveMetricDetail} /> {/* Sleep */}
-                  <MetricCard metric={MOCK_METRICS[1]} onOpenDetails={setActiveMetricDetail} /> {/* Strain */}
-               </div>
-            </div>
-
-            {/* Trends & Insights Column */}
-            <div className="flex-1 flex flex-col gap-8">
-                <motion.section 
-                    initial={{ opacity: 0, scale: 0.98 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="bg-brand-card border border-brand-border rounded-[32px] p-10 flex flex-col h-[420px] shadow-2xl"
+          {activePage === "today" && (
+            <div className="space-y-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <MetricCard metric={MOCK_METRICS[0]} onOpenDetails={setActiveMetricDetail} />
+                <MetricCard metric={MOCK_METRICS[3]} onOpenDetails={setActiveMetricDetail} />
+                <MetricCard metric={MOCK_METRICS[1]} onOpenDetails={setActiveMetricDetail} />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <motion.div 
+                    whileHover={{ y: -5 }}
+                    className="bg-brand-card rounded-[28px] p-6 border border-brand-border flex flex-col justify-between group relative overflow-hidden shadow-[0_6px_18px_rgba(16,19,23,0.06)]"
                 >
-                    <div className="flex justify-between items-end mb-10">
-                        <div>
-                            <span className="text-[10px] uppercase font-black text-brand-muted tracking-[0.2em] mb-2 block">System Analytics</span>
-                            <h2 className="text-3xl font-extralight mb-1 tracking-tight text-brand-text">Monitoring over time</h2>
-                            <p className="text-[10px] uppercase font-bold text-brand-muted tracking-[0.1em] mt-2 flex items-center gap-2">
-                                <span className="w-1.5 h-1.5 rounded-full bg-brand-accent" /> Live synchronization: Active
-                            </p>
-                        </div>
-                        <div className="flex flex-col gap-2 items-end">
-                          <div className="flex bg-brand-card p-1 rounded-xl border border-brand-border">
-                              <button
-                                onClick={() => setSelectedMetric("strain")}
-                                className={`px-5 py-2 rounded-lg text-[10px] uppercase font-black tracking-widest transition-colors ${
-                                  selectedMetric === "strain"
-                                    ? "bg-brand-accent text-black shadow-lg"
-                                    : "text-brand-muted hover:text-brand-text"
-                                }`}
-                              >
-                                Strain
-                              </button>
-                              <button
-                                onClick={() => setSelectedMetric("recovery")}
-                                className={`px-5 py-2 rounded-lg text-[10px] uppercase font-black tracking-widest transition-colors ${
-                                  selectedMetric === "recovery"
-                                    ? "bg-brand-accent text-black shadow-lg"
-                                    : "text-brand-muted hover:text-brand-text"
-                                }`}
-                              >
-                                Recovery
-                              </button>
-                          </div>
-                          <div className="flex bg-brand-card p-1 rounded-xl border border-brand-border">
-                            {[7, 14, 28].map(range => (
-                              <button
-                                key={range}
-                                onClick={() => setSelectedRange(range as 7 | 14 | 28)}
-                                className={`px-3 py-1.5 rounded-lg text-[10px] uppercase font-black tracking-widest transition-colors ${
-                                  selectedRange === range
-                                    ? "bg-white/10 text-brand-text"
-                                    : "text-brand-muted hover:text-brand-text"
-                                }`}
-                              >
-                                {range === 28 ? "4W" : `${range}D`}
-                              </button>
-                            ))}
-                          </div>
-                          <div className="flex bg-brand-card p-1 rounded-xl border border-brand-border">
-                            <button
-                              onClick={() => setChartFocus("full")}
-                              className={`px-3 py-1.5 rounded-lg text-[10px] uppercase font-black tracking-widest transition-colors ${
-                                chartFocus === "full" ? "bg-white/10 text-brand-text" : "text-brand-muted hover:text-brand-text"
-                              }`}
-                            >
-                              Trend
-                            </button>
-                            <button
-                              onClick={() => setChartFocus("latest7")}
-                              className={`px-3 py-1.5 rounded-lg text-[10px] uppercase font-black tracking-widest transition-colors ${
-                                chartFocus === "latest7" ? "bg-white/10 text-brand-text" : "text-brand-muted hover:text-brand-text"
-                              }`}
-                            >
-                              Last 7
-                            </button>
-                          </div>
-                        </div>
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-brand-accent/5 rounded-full -mr-16 -mt-16 blur-3xl" />
+                    <div>
+                        <p className="text-[10px] text-brand-accent font-black uppercase tracking-[0.2em] mb-4">Neural Recovery Plan</p>
+                        <p className="text-xl leading-snug font-light text-brand-text/90">Your parasympathetic tone is high. Primed for deep technical skill acquisition today.</p>
                     </div>
-                    <div className="flex-1">
-                        <ActivityChart
-                          data={chartData}
-                          metric={selectedMetric}
-                          color={selectedMetric === "recovery" ? "var(--color-brand-accent)" : "#3E92F9"}
-                        />
+                    <div className="mt-8 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-brand-bg border border-brand-border flex items-center justify-center">
+                                <ShieldCheck className="w-4 h-4 text-brand-accent" />
+                            </div>
+                            <span className="text-[10px] text-brand-muted uppercase font-black tracking-widest">Optimized Load</span>
+                        </div>
+                        <span className="text-2xl font-light text-brand-accent">75.5%</span>
                     </div>
-                </motion.section>
+                </motion.div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <motion.div 
-                        whileHover={{ y: -5 }}
-                        className="bg-brand-card rounded-[32px] p-8 border border-brand-border flex flex-col justify-between group relative overflow-hidden"
-                    >
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-brand-accent/5 rounded-full -mr-16 -mt-16 blur-3xl" />
-                        <div>
-                            <p className="text-[10px] text-brand-accent font-black uppercase tracking-[0.2em] mb-4">Neural Recovery Plan</p>
-                            <p className="text-xl leading-snug font-light text-brand-text/90">Your parasympathetic tone is high. Primed for deep technical skill acquisition today.</p>
-                        </div>
-                        <div className="mt-8 flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-full bg-[#1A1A1D] border border-white/5 flex items-center justify-center">
-                                    <ShieldCheck className="w-4 h-4 text-brand-accent" />
-                                </div>
-                                <span className="text-[10px] text-brand-muted uppercase font-black tracking-widest">Optimized Load</span>
+                <motion.div 
+                    whileHover={{ y: -5 }}
+                    className="bg-brand-card rounded-[28px] p-6 border border-brand-border flex flex-col justify-between group relative overflow-hidden shadow-[0_6px_18px_rgba(16,19,23,0.06)]"
+                >
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#3E92F9]/5 rounded-full -mr-16 -mt-16 blur-3xl" />
+                    <div>
+                        <p className="text-[10px] text-[#3E92F9] font-black uppercase tracking-[0.2em] mb-4">Sleep Architecture</p>
+                        <p className="text-xl leading-snug font-light text-brand-text/90">Fragmented REM cycle detected at 3:15AM. Core temperature might be too high.</p>
+                    </div>
+                    <div className="mt-8 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-brand-bg border border-brand-border flex items-center justify-center">
+                                <Moon className="w-4 h-4 text-[#3E92F9]" />
                             </div>
-                            <span className="text-2xl font-light text-brand-accent">75.5%</span>
+                            <span className="text-[10px] text-brand-muted uppercase font-black tracking-widest">Sleep Sync</span>
                         </div>
-                    </motion.div>
+                        <span className="text-2xl font-light text-[#3E92F9]">23 <span className="text-xs uppercase font-black tracking-widest">ms</span></span>
+                    </div>
+                </motion.div>
+              </div>
+            </div>
+          )}
 
-                    <motion.div 
-                        whileHover={{ y: -5 }}
-                        className="bg-brand-card rounded-[32px] p-8 border border-brand-border flex flex-col justify-between group relative overflow-hidden"
-                    >
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-[#3E92F9]/5 rounded-full -mr-16 -mt-16 blur-3xl" />
-                        <div>
-                            <p className="text-[10px] text-[#3E92F9] font-black uppercase tracking-[0.2em] mb-4">Sleep Architecture</p>
-                            <p className="text-xl leading-snug font-light text-brand-text/90">Fragmented REM cycle detected at 3:15AM. Core temperature might be too high.</p>
-                        </div>
-                        <div className="mt-8 flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-full bg-[#1A1A1D] border border-white/5 flex items-center justify-center">
-                                    <Moon className="w-4 h-4 text-[#3E92F9]" />
-                                </div>
-                                <span className="text-[10px] text-brand-muted uppercase font-black tracking-widest">Sleep Sync</span>
-                            </div>
-                            <span className="text-2xl font-light text-[#3E92F9]">23 <span className="text-xs uppercase font-black tracking-widest">ms</span></span>
-                        </div>
-                    </motion.div>
+          {activePage === "fitness" && (
+            <div className="space-y-8">
+              {/* Trends & Insights Column */}
+              <motion.section 
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-brand-card border border-brand-border rounded-[30px] p-6 md:p-8 flex flex-col h-[430px] shadow-[0_6px_18px_rgba(16,19,23,0.06)]"
+              >
+                <div className="flex justify-between items-end mb-10 gap-4">
+                    <div>
+                        <span className="text-[10px] uppercase font-black text-brand-muted tracking-[0.2em] mb-2 block">System Analytics</span>
+                        <h2 className="text-2xl md:text-3xl font-semibold mb-1 tracking-tight text-brand-text">Monitoring over time</h2>
+                        <p className="text-[10px] uppercase font-bold text-brand-muted tracking-[0.1em] mt-2 flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-brand-accent" /> Live synchronization: Active
+                        </p>
+                    </div>
+                    <div className="flex flex-col gap-2 items-end">
+                      <div className="flex bg-brand-card p-1 rounded-xl border border-brand-border">
+                          <button
+                            onClick={() => setSelectedMetric("strain")}
+                            className={`px-4 py-2 rounded-lg text-[10px] uppercase font-black tracking-widest transition-colors ${
+                              selectedMetric === "strain"
+                                ? "bg-brand-accent text-black shadow-lg"
+                                : "text-brand-muted hover:text-brand-text"
+                            }`}
+                          >
+                            Strain
+                          </button>
+                          <button
+                            onClick={() => setSelectedMetric("recovery")}
+                            className={`px-4 py-2 rounded-lg text-[10px] uppercase font-black tracking-widest transition-colors ${
+                              selectedMetric === "recovery"
+                                ? "bg-brand-accent text-black shadow-lg"
+                                : "text-brand-muted hover:text-brand-text"
+                            }`}
+                          >
+                            Recovery
+                          </button>
+                      </div>
+                      <div className="flex bg-brand-card p-1 rounded-xl border border-brand-border">
+                        {[7, 14, 28].map(range => (
+                          <button
+                            key={range}
+                            onClick={() => setSelectedRange(range as 7 | 14 | 28)}
+                            className={`px-3 py-1.5 rounded-lg text-[10px] uppercase font-black tracking-widest transition-colors ${
+                              selectedRange === range
+                                ? "bg-white/10 text-brand-text"
+                                : "text-brand-muted hover:text-brand-text"
+                            }`}
+                          >
+                            {range === 28 ? "4W" : `${range}D`}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="flex bg-brand-card p-1 rounded-xl border border-brand-border">
+                        <button
+                          onClick={() => setChartFocus("full")}
+                          className={`px-3 py-1.5 rounded-lg text-[10px] uppercase font-black tracking-widest transition-colors ${
+                            chartFocus === "full" ? "bg-white/10 text-brand-text" : "text-brand-muted hover:text-brand-text"
+                          }`}
+                        >
+                          Trend
+                        </button>
+                        <button
+                          onClick={() => setChartFocus("latest7")}
+                          className={`px-3 py-1.5 rounded-lg text-[10px] uppercase font-black tracking-widest transition-colors ${
+                            chartFocus === "latest7" ? "bg-white/10 text-brand-text" : "text-brand-muted hover:text-brand-text"
+                          }`}
+                        >
+                          Last 7
+                        </button>
+                      </div>
+                    </div>
                 </div>
-            </div>
-          </div>
+                <div className="flex-1">
+                    <ActivityChart
+                      data={chartData}
+                      metric={selectedMetric}
+                      color={selectedMetric === "recovery" ? "var(--color-brand-accent)" : "#3E92F9"}
+                    />
+                </div>
+              </motion.section>
 
-          {/* Tertiary Data Area */}
-          <div className="pt-4">
-            <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-muted mb-6 px-1">Tertiary Array</h3>
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <MetricCard metric={MOCK_METRICS[2]} onOpenDetails={setActiveMetricDetail} /> {/* HRV */}
-                <MetricCard metric={MOCK_METRICS[4]} onOpenDetails={setActiveMetricDetail} /> {/* RHR */}
-                <MetricCard metric={MOCK_METRICS[5]} onOpenDetails={setActiveMetricDetail} /> {/* Respiratory */}
-                <MetricCard metric={MOCK_METRICS[6]} onOpenDetails={setActiveMetricDetail} /> {/* Sleep Debt */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <MetricCard metric={MOCK_METRICS[1]} onOpenDetails={setActiveMetricDetail} />
+                <MetricCard metric={MOCK_METRICS[6]} onOpenDetails={setActiveMetricDetail} />
+              </div>
             </div>
-          </div>
+          )}
+
+          {activePage === "biology" && (
+            <div className="space-y-6">
+              <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-muted mb-2 px-1">Biology Metrics</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+                  <MetricCard metric={MOCK_METRICS[2]} onOpenDetails={setActiveMetricDetail} />
+                  <MetricCard metric={MOCK_METRICS[4]} onOpenDetails={setActiveMetricDetail} />
+                  <MetricCard metric={MOCK_METRICS[5]} onOpenDetails={setActiveMetricDetail} />
+                  <MetricCard metric={MOCK_METRICS[6]} onOpenDetails={setActiveMetricDetail} />
+              </div>
+            </div>
+          )}
         </div>
       </main>
 
@@ -300,22 +284,75 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
         </div>
       )}
 
-      {/* AI Assistant Sidebar */}
-      {showAssistant && (
-        <aside className="w-full lg:w-[320px] xl:w-[360px] border-l border-brand-border bg-brand-bg" id="ai-sidebar-container">
-          <AIPanel participantProfile={participantProfile} onTranscriptChange={onTranscriptChange} />
-        </aside>
-      )}
+      {/* Mobile/desktop page tabs */}
+      <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-brand-card border border-brand-border rounded-full shadow-[0_10px_24px_rgba(16,19,23,0.12)] p-1.5 flex items-center gap-1 w-[min(88vw,420px)]">
+        <TabButton
+          icon={<Home className="w-4 h-4" />}
+          label="Today"
+          active={activePage === "today"}
+          onClick={() => setActivePage("today")}
+        />
+        <TabButton
+          icon={<BarChart3 className="w-4 h-4" />}
+          label="Fitness"
+          active={activePage === "fitness"}
+          onClick={() => setActivePage("fitness")}
+        />
+        <TabButton
+          icon={<HeartPulse className="w-4 h-4" />}
+          label="Biology"
+          active={activePage === "biology"}
+          onClick={() => setActivePage("biology")}
+        />
+      </nav>
 
-      {!showAssistant && (
-        <button
-          type="button"
-          onClick={() => setShowAssistant(true)}
-          className="fixed bottom-5 right-5 z-50 px-4 py-3 rounded-xl bg-brand-accent text-black text-[10px] uppercase tracking-[0.14em] font-black shadow-2xl"
-        >
-          Open AI Coach
-        </button>
+      <button
+        type="button"
+        onClick={() => setShowAssistant(prev => !prev)}
+        className="fixed bottom-5 right-4 z-[60] w-14 h-14 rounded-full bg-brand-card border border-brand-border text-brand-text shadow-[0_10px_24px_rgba(16,19,23,0.12)] flex items-center justify-center"
+        aria-label={showAssistant ? "Close AI panel" : "Open AI panel"}
+      >
+        {showAssistant ? <X className="w-5 h-5" /> : <Bot className="w-5 h-5" />}
+      </button>
+
+      {showAssistant && (
+        <div className="fixed inset-0 z-[70] bg-black/40 backdrop-blur-[2px]">
+          <button
+            type="button"
+            onClick={() => setShowAssistant(false)}
+            className="absolute inset-0"
+            aria-label="Close AI panel backdrop"
+          />
+          <div className="absolute inset-y-0 right-0 w-full max-w-[390px] bg-brand-bg border-l border-brand-border shadow-[0_10px_24px_rgba(16,19,23,0.2)] z-10">
+            <AIPanel participantProfile={participantProfile} onTranscriptChange={onTranscriptChange} />
+          </div>
+        </div>
       )}
     </div>
+  );
+}
+
+function TabButton({
+  icon,
+  label,
+  active,
+  onClick,
+}: {
+  icon: ReactNode;
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex-1 rounded-full px-3 py-2 text-[11px] font-semibold transition-colors flex items-center justify-center gap-1.5 ${
+        active ? "bg-brand-bg text-brand-text" : "text-brand-muted hover:text-brand-text"
+      }`}
+    >
+      {icon}
+      <span>{label}</span>
+    </button>
   );
 }

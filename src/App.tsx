@@ -16,25 +16,13 @@ export default function App() {
   const [step, setStep] = useState<AppStep>('welcome');
   const [participantProfile, setParticipantProfile] = useState<ParticipantProfile | null>(null);
   const [transcript, setTranscript] = useState<ChatMessage[]>([]);
-  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
-    const stored = localStorage.getItem('theme');
-    return stored === 'light' ? 'light' : 'dark';
-  });
 
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
-  }, [theme]);
+    document.documentElement.setAttribute('data-theme', 'light');
+  }, []);
 
   return (
-    <div className="min-h-[100dvh] bg-brand-bg" id="app-root">
-      <button
-        type="button"
-        onClick={() => setTheme(prev => (prev === 'dark' ? 'light' : 'dark'))}
-        className="fixed top-4 right-4 z-[70] px-4 py-2 rounded-xl border border-brand-border bg-brand-card text-brand-text text-[10px] uppercase tracking-[0.14em] font-black"
-      >
-        {theme === 'dark' ? 'Light mode' : 'Dark mode'}
-      </button>
+    <div className="min-h-[100dvh] bg-brand-bg overflow-x-hidden" id="app-root">
       {step === 'welcome' && <WelcomePage onContinue={() => setStep('questionnaire')} />}
       {step === 'questionnaire' && (
         <QuestionnairePage
