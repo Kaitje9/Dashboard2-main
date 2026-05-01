@@ -26,6 +26,7 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isInputFocused, setIsInputFocused] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -96,6 +97,10 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
       <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-5" ref={scrollRef}>
         <AnimatePresence>
           {messages.map((msg, i) => (
+            (() => {
+              const isModel = msg.role === 'model';
+              const isStreamingBubble = isModel && isLoading && i === messages.length - 1;
+              return (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 10 }}
@@ -105,16 +110,20 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
               <span className="text-[10px] text-brand-muted uppercase font-semibold tracking-tight">
                 {msg.role === 'user' ? 'You' : 'AI'} • {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </span>
-              <div className={`max-w-[92%] sm:max-w-[88%] p-4 text-[15px] leading-[1.55] ${
-                msg.role === 'user' 
-                  ? 'bg-brand-accent text-black rounded-2xl rounded-tr-none font-medium' 
-                  : 'bg-white/72 text-brand-text rounded-2xl rounded-tl-none shadow-[0_4px_14px_rgba(16,19,23,0.08)]'
+              <div className={`max-w-[92%] sm:max-w-[88%] p-4 text-[15px] leading-[1.55] transition-all duration-200 ${
+                msg.role === 'user'
+                  ? 'bg-brand-accent text-black rounded-2xl rounded-tr-none font-medium shadow-[0_4px_14px_rgba(16,19,23,0.08)]'
+                  : `text-brand-text rounded-2xl rounded-tl-none shadow-[0_4px_14px_rgba(16,19,23,0.08)] ${
+                      isStreamingBubble ? 'bg-white/58' : isInputFocused ? 'bg-white/80' : 'bg-white/72'
+                    }`
               }`}>
                 <div className="markdown-body chat-markdown">
                   <ReactMarkdown>{msg.text}</ReactMarkdown>
                 </div>
               </div>
             </motion.div>
+              );
+            })()
           ))}
           {isLoading && !messages[messages.length - 1].text && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-2 items-center">
@@ -134,6 +143,8 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            onFocus={() => setIsInputFocused(true)}
+            onBlur={() => setIsInputFocused(false)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
             placeholder="Ask about your data..."
             className="w-full bg-transparent px-3 pr-12 text-[16px] text-brand-text focus:outline-none placeholder:text-brand-muted"
