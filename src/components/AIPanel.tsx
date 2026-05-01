@@ -70,15 +70,15 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
   };
 
   return (
-    <div className="flex flex-col h-full bg-white/18 backdrop-blur-2xl border-l border-white/40" id="ai-panel">
-      <div className="p-6 border-b border-white/40 flex items-center justify-between">
+    <div className="flex flex-col h-full bg-white/14 backdrop-blur-2xl" id="ai-panel">
+      <div className="p-6 flex items-center justify-between">
         <button
           type="button"
           onClick={onClose}
-          className="w-8 h-8 rounded-full bg-white/70 border border-brand-border text-brand-muted flex items-center justify-center"
+          className="w-10 h-10 rounded-full bg-brand-card text-brand-muted shadow-[0_8px_18px_rgba(16,19,23,0.14)] flex items-center justify-center"
           aria-label="Close chat panel"
         >
-          <ChevronLeft className="w-4 h-4" />
+          <ChevronLeft className="w-5 h-5" />
         </button>
         <div className="flex items-center gap-3">
         <div className="w-2 h-2 rounded-full bg-brand-accent animate-pulse shadow-[0_0_8px_rgba(229,249,62,0.6)]"></div>
@@ -101,7 +101,7 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
               <div className={`max-w-[90%] p-4 text-sm leading-relaxed ${
                 msg.role === 'user' 
                   ? 'bg-brand-accent text-black rounded-2xl rounded-tr-none font-medium' 
-                  : 'bg-white/70 text-brand-text rounded-2xl rounded-tl-none border border-white/70'
+                  : 'bg-white/72 text-brand-text rounded-2xl rounded-tl-none shadow-[0_4px_14px_rgba(16,19,23,0.08)]'
               }`}>
                 <div className="markdown-body">
                   <ReactMarkdown>{msg.text}</ReactMarkdown>
@@ -111,7 +111,7 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
           ))}
           {isLoading && !messages[messages.length - 1].text && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-2 items-center">
-              <div className="bg-white/70 p-3 rounded-xl rounded-tl-none flex items-center gap-2">
+              <div className="bg-white/72 p-3 rounded-xl rounded-tl-none flex items-center gap-2 shadow-[0_4px_14px_rgba(16,19,23,0.08)]">
                 <Loader2 className="w-3 h-3 text-brand-muted animate-spin" />
                 <span className="text-[10px] text-brand-muted uppercase font-bold">Analyzing Bio-Sync...</span>
               </div>
@@ -120,20 +120,20 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
         </AnimatePresence>
       </div>
 
-      <div className="p-4 bg-white/18">
-        <div className="relative flex items-center">
+      <div className="p-4 bg-white/12">
+        <div className="relative flex items-center h-14 rounded-full bg-brand-card shadow-[0_10px_24px_rgba(16,19,23,0.12)] px-3">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
             placeholder="Ask about your data..."
-            className="w-full bg-white/70 border border-brand-border rounded-xl py-3 px-4 pr-12 text-xs text-brand-text focus:outline-none focus:border-brand-accent transition-colors placeholder:text-brand-muted"
+            className="w-full bg-transparent px-3 pr-12 text-[16px] text-brand-text focus:outline-none placeholder:text-brand-muted"
           />
           <button
             onClick={handleSend}
             disabled={isLoading}
-            className="absolute right-3 w-6 h-6 bg-brand-border rounded flex items-center justify-center text-brand-muted hover:text-brand-accent transition-colors disabled:opacity-50"
+            className="absolute right-3 w-8 h-8 rounded-full bg-white/80 flex items-center justify-center text-brand-muted hover:text-brand-accent transition-colors disabled:opacity-50 shadow-[0_6px_16px_rgba(16,19,23,0.1)]"
           >
             <span className="text-[10px]">⏎</span>
           </button>
