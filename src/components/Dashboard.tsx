@@ -4,7 +4,7 @@
  */
 
 import { motion } from "motion/react";
-import { Moon, Bell, Menu, ShieldCheck, History, Users, X, Home, BarChart3, HeartPulse, Bot } from "lucide-react";
+import { Moon, ShieldCheck, X, Home, BarChart3, HeartPulse, Bot, ChevronDown } from "lucide-react";
 import { useMemo, useState } from "react";
 import { ReactNode } from "react";
 import { MetricCard } from "./MetricCard";
@@ -41,31 +41,13 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
       {/* Main Content Area */}
       <main className="flex-1 overflow-y-auto overflow-x-hidden pb-24 lg:pb-8" id="dashboard-content">
         {/* Header (Refined with Search) */}
-        <header className="px-4 md:px-10 py-5 md:py-7 flex items-center justify-between bg-brand-bg/95 backdrop-blur-xl sticky top-0 z-30">
-          <div className="flex items-center gap-6">
-            <Menu className="w-5 h-5 lg:hidden" />
-            <div className="flex flex-col">
-              <span className="text-[11px] font-semibold text-brand-muted mb-1">Hi {participantName}</span>
+        <header className="px-4 md:px-10 py-5 md:py-7 bg-brand-bg/95 backdrop-blur-xl sticky top-0 z-30">
+          <div className="flex flex-col">
+            <span className="text-[11px] font-semibold text-brand-muted mb-1">Hi {participantName}</span>
+            <div className="flex items-center gap-2">
               <h1 className="text-4xl leading-none font-semibold tracking-tight">{pageTitle}</h1>
+              <ChevronDown className="w-5 h-5 text-brand-muted mt-1" />
             </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1 p-1 bg-brand-border rounded-xl border border-white/5">
-                <button className="p-2 text-brand-muted hover:text-brand-text hover:bg-brand-bg rounded-lg transition-all"><History className="w-4 h-4" /></button>
-                <button className="p-2 text-brand-muted hover:text-brand-text hover:bg-brand-bg rounded-lg transition-all"><Users className="w-4 h-4" /></button>
-                <button className="p-2 text-brand-muted hover:text-brand-text hover:bg-brand-bg rounded-lg transition-all relative">
-                    <Bell className="w-4 h-4" />
-                    <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-brand-accent rounded-full border border-brand-bg" />
-                </button>
-            </div>
-            <button
-              type="button"
-              onClick={onCompleteStudy}
-              className="px-4 py-2 rounded-xl border border-brand-border text-[10px] uppercase tracking-[0.14em] font-black text-brand-muted hover:text-brand-text transition-colors"
-            >
-              Finish Study
-            </button>
           </div>
         </header>
 
@@ -74,15 +56,16 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
           <motion.section
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-brand-card border border-brand-border rounded-[24px] p-5 md:p-7 flex flex-col md:flex-row gap-4 md:items-center md:justify-between shadow-[0_4px_14px_rgba(16,19,23,0.06)]"
+            className="bg-brand-card border border-brand-border rounded-[18px] px-4 py-3 flex items-center justify-between shadow-[0_4px_14px_rgba(16,19,23,0.05)]"
           >
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.2em] font-black text-brand-accent mb-2">Personal Brief</p>
-              <p className="text-sm text-brand-text leading-relaxed">{encouragement}</p>
-            </div>
-            <div className="px-4 py-2 rounded-xl bg-brand-card border border-brand-border text-[10px] uppercase tracking-[0.14em] font-black text-brand-muted">
-              Sport Focus: {participantProfile?.primarySports || "General fitness"}
-            </div>
+            <p className="text-[12px] text-brand-muted truncate pr-3">{encouragement}</p>
+            <button
+              type="button"
+              onClick={onCompleteStudy}
+              className="px-3 py-1.5 rounded-full border border-brand-border text-[10px] uppercase tracking-[0.12em] font-semibold text-brand-muted shrink-0"
+            >
+              Finish
+            </button>
           </motion.section>
 
           {activePage === "today" && (
@@ -323,8 +306,12 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
             className="absolute inset-0"
             aria-label="Close AI panel backdrop"
           />
-          <div className="absolute inset-y-0 right-0 w-full max-w-[390px] bg-brand-bg border-l border-brand-border shadow-[0_10px_24px_rgba(16,19,23,0.2)] z-10">
-            <AIPanel participantProfile={participantProfile} onTranscriptChange={onTranscriptChange} />
+          <div className="absolute inset-y-0 right-0 w-full max-w-[390px] bg-white/70 backdrop-blur-xl border-l border-white/50 shadow-[0_10px_24px_rgba(16,19,23,0.2)] z-10">
+            <AIPanel
+              participantProfile={participantProfile}
+              onTranscriptChange={onTranscriptChange}
+              onClose={() => setShowAssistant(false)}
+            />
           </div>
         </div>
       )}

@@ -5,7 +5,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Send, Bot, User, Loader2 } from 'lucide-react';
+import { Loader2, ChevronLeft } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { ChatMessage, ParticipantProfile } from '../types';
 import { INITIAL_AI_GREETING } from '../constants';
@@ -14,9 +14,10 @@ import { sendMessageStream } from '../services/ai';
 interface AIPanelProps {
   participantProfile: ParticipantProfile | null;
   onTranscriptChange?: (messages: ChatMessage[]) => void;
+  onClose?: () => void;
 }
 
-export function AIPanel({ participantProfile, onTranscriptChange }: AIPanelProps) {
+export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIPanelProps) {
   const greeting = participantProfile?.firstName
     ? `Hi ${participantProfile.firstName}, ${INITIAL_AI_GREETING}`
     : INITIAL_AI_GREETING;
@@ -69,10 +70,20 @@ export function AIPanel({ participantProfile, onTranscriptChange }: AIPanelProps
   };
 
   return (
-    <div className="flex flex-col h-full bg-brand-card border-l border-brand-border" id="ai-panel">
-      <div className="p-6 border-b border-brand-border flex items-center gap-3">
+    <div className="flex flex-col h-full bg-white/35 backdrop-blur-xl border-l border-white/50" id="ai-panel">
+      <div className="p-6 border-b border-white/50 flex items-center justify-between">
+        <button
+          type="button"
+          onClick={onClose}
+          className="w-8 h-8 rounded-full bg-white/70 border border-brand-border text-brand-muted flex items-center justify-center"
+          aria-label="Close chat panel"
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        <div className="flex items-center gap-3">
         <div className="w-2 h-2 rounded-full bg-brand-accent animate-pulse shadow-[0_0_8px_rgba(229,249,62,0.6)]"></div>
         <h2 className="text-sm font-bold text-brand-text uppercase tracking-widest font-sans">Pulse Intelligence</h2>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-6 space-y-6" ref={scrollRef}>
@@ -90,7 +101,7 @@ export function AIPanel({ participantProfile, onTranscriptChange }: AIPanelProps
               <div className={`max-w-[90%] p-4 text-sm leading-relaxed ${
                 msg.role === 'user' 
                   ? 'bg-brand-accent text-black rounded-2xl rounded-tr-none font-medium' 
-                  : 'bg-brand-border text-brand-text rounded-2xl rounded-tl-none border border-white/5'
+                  : 'bg-white/70 text-brand-text rounded-2xl rounded-tl-none border border-white/70'
               }`}>
                 <div className="markdown-body">
                   <ReactMarkdown>{msg.text}</ReactMarkdown>
@@ -100,7 +111,7 @@ export function AIPanel({ participantProfile, onTranscriptChange }: AIPanelProps
           ))}
           {isLoading && !messages[messages.length - 1].text && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-2 items-center">
-              <div className="bg-brand-border p-3 rounded-xl rounded-tl-none flex items-center gap-2">
+              <div className="bg-white/70 p-3 rounded-xl rounded-tl-none flex items-center gap-2">
                 <Loader2 className="w-3 h-3 text-brand-muted animate-spin" />
                 <span className="text-[10px] text-brand-muted uppercase font-bold">Analyzing Bio-Sync...</span>
               </div>
@@ -109,7 +120,7 @@ export function AIPanel({ participantProfile, onTranscriptChange }: AIPanelProps
         </AnimatePresence>
       </div>
 
-      <div className="p-4 bg-brand-bg">
+      <div className="p-4 bg-white/30">
         <div className="relative flex items-center">
           <input
             type="text"
@@ -117,7 +128,7 @@ export function AIPanel({ participantProfile, onTranscriptChange }: AIPanelProps
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
             placeholder="Ask about your data..."
-            className="w-full bg-brand-card border border-brand-border rounded-xl py-3 px-4 pr-12 text-xs text-brand-text focus:outline-none focus:border-brand-accent transition-colors placeholder:text-brand-muted"
+            className="w-full bg-white/80 border border-brand-border rounded-xl py-3 px-4 pr-12 text-xs text-brand-text focus:outline-none focus:border-brand-accent transition-colors placeholder:text-brand-muted"
           />
           <button
             onClick={handleSend}
