@@ -70,8 +70,8 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
   };
 
   return (
-    <div className="flex flex-col h-full bg-white/35 backdrop-blur-xl border-l border-white/50" id="ai-panel">
-      <div className="p-6 border-b border-white/50 flex items-center justify-between">
+    <div className="flex flex-col h-full bg-white/18 backdrop-blur-2xl border-l border-white/40" id="ai-panel">
+      <div className="p-6 border-b border-white/40 flex items-center justify-between">
         <button
           type="button"
           onClick={onClose}
@@ -120,7 +120,7 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
         </AnimatePresence>
       </div>
 
-      <div className="p-4 bg-white/30">
+      <div className="p-4 bg-white/18">
         <div className="relative flex items-center">
           <input
             type="text"
@@ -128,7 +128,7 @@ export function AIPanel({ participantProfile, onTranscriptChange, onClose }: AIP
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
             placeholder="Ask about your data..."
-            className="w-full bg-white/80 border border-brand-border rounded-xl py-3 px-4 pr-12 text-xs text-brand-text focus:outline-none focus:border-brand-accent transition-colors placeholder:text-brand-muted"
+            className="w-full bg-white/70 border border-brand-border rounded-xl py-3 px-4 pr-12 text-xs text-brand-text focus:outline-none focus:border-brand-accent transition-colors placeholder:text-brand-muted"
           />
           <button
             onClick={handleSend}

@@ -26,6 +26,8 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
   const [activeMetricDetail, setActiveMetricDetail] = useState<HealthMetric | null>(null);
   const [showAssistant, setShowAssistant] = useState(false);
   const [activePage, setActivePage] = useState<"today" | "fitness" | "biology">("today");
+  const [isNavCollapsed, setIsNavCollapsed] = useState(false);
+  const [lastScrollTop, setLastScrollTop] = useState(0);
   const chartData = useMemo(() => {
     const rangeData = MOCK_DAILY_HISTORY.slice(-selectedRange);
     return chartFocus === "latest7" ? rangeData.slice(-7) : rangeData;
@@ -35,24 +37,59 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
   const encouragement = participantProfile
     ? `You reported feeling ${participantProfile.recoveryFeeling.toLowerCase()} today with ${participantProfile.weeklySleepQuality.toLowerCase()} sleep this week. Keep building toward: ${participantProfile.currentGoal}.`
     : "You are building consistency. Small daily wins compound quickly when recovery and sleep stay aligned.";
+  const strainMetric = MOCK_METRICS.find(metric => metric.id === "strain");
+  const recoveryMetric = MOCK_METRICS.find(metric => metric.id === "recovery");
+  const sleepMetric = MOCK_METRICS.find(metric => metric.id === "sleep");
+  const strainPercent = Math.round((Number(strainMetric?.value ?? 0) / 21) * 100);
+  const recoveryPercent = Math.round(Number(recoveryMetric?.value ?? 0));
+  const sleepPercent = Math.round((Number(sleepMetric?.value ?? 0) / 10) * 100);
+  const snapshotAverage = Math.round((strainPercent + recoveryPercent + sleepPercent) / 3);
+  const snapshotStatus = snapshotAverage >= 70 ? "Strong daily readiness" : snapshotAverage >= 50 ? "Moderate readiness" : "Low readiness";
 
   return (
     <div className="flex flex-col min-h-[100dvh] lg:h-[100dvh] bg-brand-bg text-brand-text overflow-x-hidden font-sans" id="main-dashboard-container">
       {/* Main Content Area */}
-      <main className="flex-1 overflow-y-auto overflow-x-hidden pb-24 lg:pb-8" id="dashboard-content">
+      <main
+        className="flex-1 overflow-y-auto overflow-x-hidden pb-24 lg:pb-8"
+        id="dashboard-content"
+        onScroll={(event) => {
+          const target = event.currentTarget;
+          const currentScrollTop = target.scrollTop;
+          const isScrollingDown = currentScrollTop > lastScrollTop;
+          setLastScrollTop(currentScrollTop);
+          if (currentScrollTop < 24) {
+            setIsNavCollapsed(false);
+            return;
+          }
+          if (isScrollingDown && currentScrollTop > 56) {
+            setIsNavCollapsed(true);
+          } else if (!isScrollingDown) {
+            setIsNavCollapsed(false);
+          }
+        }}
+      >
         {/* Header (Refined with Search) */}
         <header className="px-4 md:px-10 py-5 md:py-7 bg-brand-bg/95 backdrop-blur-xl sticky top-0 z-30">
-          <div className="flex flex-col">
-            <span className="text-[11px] font-semibold text-brand-muted mb-1">Hi {participantName}</span>
-            <div className="flex items-center gap-2">
-              <h1 className="text-4xl leading-none font-semibold tracking-tight">{pageTitle}</h1>
-              <ChevronDown className="w-5 h-5 text-brand-muted mt-1" />
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex flex-col">
+              <span className="text-[11px] font-semibold text-brand-muted mb-1">Hi {participantName}</span>
+              <div className="flex items-center gap-2">
+                <h1 className="text-4xl leading-none font-semibold tracking-tight">{pageTitle}</h1>
+                <ChevronDown className="w-5 h-5 text-brand-muted mt-1" />
+              </div>
             </div>
+            <button
+              type="button"
+              onClick={onCompleteStudy}
+              className="mt-1 px-3 py-1.5 rounded-full border border-brand-border text-[10px] uppercase tracking-[0.12em] font-semibold text-brand-muted shrink-0"
+            >
+              Finish
+            </button>
           </div>
         </header>
 
         {/* Dashboard Grid */}
-        <div className="px-4 md:px-10 pb-10 space-y-8 max-w-6xl mx-auto w-full">
+        <div className="px-4 md:px-10 pb-10 space-y-5 max-w-6xl mx-auto w-full">
           <motion.section
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -69,20 +106,21 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
           </motion.section>
 
           {activePage === "today" && (
-            <div className="space-y-8">
+            <div className="space-y-5">
               <SectionTitle title="Daily Snapshot" subtitle="Last sync 09:24" />
-              <div className="bg-brand-card border border-brand-border rounded-[24px] p-5 shadow-[0_6px_18px_rgba(16,19,23,0.06)]">
+              <div className="bg-brand-card border border-brand-border rounded-[24px] p-5 shadow-[0_6px_18px_rgba(16,19,23,0.06)] space-y-4">
                 <div className="grid grid-cols-3 gap-2 sm:gap-4">
                   <RingMeter
                     label="Belasting"
-                    value={Number(MOCK_METRICS[1].value)}
-                    max={21}
+                    value={strainPercent}
+                    max={100}
                     color="#f59e0b"
                     icon={<Zap className="w-3.5 h-3.5" />}
+                    suffix="%"
                   />
                   <RingMeter
                     label="Herstel"
-                    value={Number(MOCK_METRICS[0].value)}
+                    value={recoveryPercent}
                     max={100}
                     color="#65d645"
                     suffix="%"
@@ -90,11 +128,22 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
                   />
                   <RingMeter
                     label="Slaap"
-                    value={Number(MOCK_METRICS[3].value)}
-                    max={10}
+                    value={sleepPercent}
+                    max={100}
                     color="#7488ff"
                     icon={<BedDouble className="w-3.5 h-3.5" />}
+                    suffix="%"
                   />
+                </div>
+                <div className="rounded-2xl bg-brand-bg/60 border border-brand-border px-4 py-3 flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[0.16em] font-black text-brand-muted">Readiness</p>
+                    <p className="text-sm text-brand-text font-semibold">{snapshotStatus}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[10px] uppercase tracking-[0.16em] font-black text-brand-muted">Daily Avg</p>
+                    <p className="text-lg font-semibold text-brand-text">{snapshotAverage}%</p>
+                  </div>
                 </div>
               </div>
 
@@ -142,8 +191,7 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
               </div>
 
               <SectionTitle title="Key Metrics" subtitle="Tap any card for deeper explanation" />
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <MetricCard metric={MOCK_METRICS[0]} onOpenDetails={setActiveMetricDetail} />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <MetricCard metric={MOCK_METRICS[3]} onOpenDetails={setActiveMetricDetail} />
                 <MetricCard metric={MOCK_METRICS[1]} onOpenDetails={setActiveMetricDetail} />
               </div>
@@ -301,25 +349,36 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
       )}
 
       {/* Mobile/desktop page tabs */}
-      <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-brand-card border border-brand-border rounded-full shadow-[0_10px_24px_rgba(16,19,23,0.12)] p-1.5 flex items-center gap-1 w-[min(88vw,420px)]">
+      <nav
+        className={`fixed bottom-4 z-50 bg-brand-card border border-brand-border rounded-full shadow-[0_10px_24px_rgba(16,19,23,0.12)] p-1.5 flex items-center gap-1 transition-all duration-300 ${
+          isNavCollapsed
+            ? "left-4 w-[64px] justify-center"
+            : "left-1/2 -translate-x-1/2 w-[min(88vw,420px)]"
+        }`}
+      >
         <TabButton
           icon={<Home className="w-4 h-4" />}
           label="Today"
           active={activePage === "today"}
           onClick={() => setActivePage("today")}
+          collapsed={isNavCollapsed}
         />
-        <TabButton
-          icon={<BarChart3 className="w-4 h-4" />}
-          label="Fitness"
-          active={activePage === "fitness"}
-          onClick={() => setActivePage("fitness")}
-        />
-        <TabButton
-          icon={<HeartPulse className="w-4 h-4" />}
-          label="Biology"
-          active={activePage === "biology"}
-          onClick={() => setActivePage("biology")}
-        />
+        {!isNavCollapsed && (
+          <>
+            <TabButton
+              icon={<BarChart3 className="w-4 h-4" />}
+              label="Fitness"
+              active={activePage === "fitness"}
+              onClick={() => setActivePage("fitness")}
+            />
+            <TabButton
+              icon={<HeartPulse className="w-4 h-4" />}
+              label="Biology"
+              active={activePage === "biology"}
+              onClick={() => setActivePage("biology")}
+            />
+          </>
+        )}
       </nav>
 
       <button
@@ -339,7 +398,7 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
             className="absolute inset-0"
             aria-label="Close AI panel backdrop"
           />
-          <div className="absolute inset-y-0 right-0 w-full max-w-[390px] bg-white/70 backdrop-blur-xl border-l border-white/50 shadow-[0_10px_24px_rgba(16,19,23,0.2)] z-10">
+          <div className="absolute inset-y-0 right-0 w-full max-w-[390px] bg-white/50 backdrop-blur-xl border-l border-white/40 shadow-[0_10px_24px_rgba(16,19,23,0.2)] z-10">
             <AIPanel
               participantProfile={participantProfile}
               onTranscriptChange={onTranscriptChange}
@@ -357,22 +416,24 @@ function TabButton({
   label,
   active,
   onClick,
+  collapsed = false,
 }: {
   icon: ReactNode;
   label: string;
   active: boolean;
   onClick: () => void;
+  collapsed?: boolean;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`flex-1 rounded-full px-3 py-2 text-[11px] font-semibold transition-colors flex items-center justify-center gap-1.5 ${
+      className={`${collapsed ? "w-12 h-10" : "flex-1 px-3 py-2"} rounded-full text-[11px] font-semibold transition-colors flex items-center justify-center gap-1.5 ${
         active ? "bg-brand-bg text-brand-text" : "text-brand-muted hover:text-brand-text"
       }`}
     >
       {icon}
-      <span>{label}</span>
+      {!collapsed && <span>{label}</span>}
     </button>
   );
 }
