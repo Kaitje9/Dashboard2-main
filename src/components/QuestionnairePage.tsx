@@ -147,7 +147,11 @@ export function QuestionnairePage({ onSubmit, onBack }: QuestionnairePageProps) 
           <button
             type="button"
             disabled={!isValid}
-            onClick={() => onSubmit(profile)}
+            onClick={() => {
+              const activeElement = document.activeElement as HTMLElement | null;
+              activeElement?.blur();
+              onSubmit(profile);
+            }}
             className="px-6 py-3 rounded-xl bg-brand-accent text-black text-xs uppercase tracking-[0.14em] font-black disabled:opacity-40"
           >
             Continue to Dashboard

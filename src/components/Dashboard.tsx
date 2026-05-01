@@ -52,18 +52,8 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
         onScroll={(event) => {
           const target = event.currentTarget;
           const currentScrollTop = target.scrollTop;
-          const previousScrollTop = previousScrollTopRef.current;
-          const isScrollingDown = currentScrollTop > previousScrollTop;
           previousScrollTopRef.current = currentScrollTop;
-          if (currentScrollTop < 24) {
-            setIsNavCollapsed(false);
-            return;
-          }
-          if (isScrollingDown && currentScrollTop > 48) {
-            setIsNavCollapsed(true);
-          } else if (!isScrollingDown && Math.abs(currentScrollTop - previousScrollTop) > 8) {
-            setIsNavCollapsed(false);
-          }
+          setIsNavCollapsed(currentScrollTop > 72);
         }}
       >
         {/* Header (Refined with Search) */}
@@ -331,47 +321,49 @@ export function Dashboard({ participantProfile, onCompleteStudy, onTranscriptCha
         </div>
       )}
 
-      {/* Mobile/desktop page tabs */}
-      <nav
-        className={`fixed bottom-5 z-50 bg-brand-card border border-brand-border shadow-[0_10px_24px_rgba(16,19,23,0.12)] transition-all duration-300 ${
-          isNavCollapsed
-            ? "left-4 w-14 h-14 rounded-full flex items-center justify-center"
-            : "left-1/2 -translate-x-1/2 w-[min(78vw,300px)] h-14 rounded-full px-2 py-1 flex items-center justify-between"
-        }`}
-      >
-        <TabButton
-          icon={<Home className="w-4 h-4" />}
-          label="Today"
-          active={activePage === "today"}
-          onClick={() => setActivePage("today")}
-          collapsed={isNavCollapsed}
-        />
-        {!isNavCollapsed && (
-          <>
-            <TabButton
-              icon={<BarChart3 className="w-4 h-4" />}
-              label="Fitness"
-              active={activePage === "fitness"}
-              onClick={() => setActivePage("fitness")}
-            />
-            <TabButton
-              icon={<HeartPulse className="w-4 h-4" />}
-              label="Biology"
-              active={activePage === "biology"}
-              onClick={() => setActivePage("biology")}
-            />
-          </>
-        )}
-      </nav>
+      {/* Mobile/desktop page tabs + AI */}
+      <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-2">
+        <nav
+          className={`bg-brand-card border border-brand-border shadow-[0_10px_24px_rgba(16,19,23,0.12)] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+            isNavCollapsed
+              ? "w-14 h-14 rounded-full flex items-center justify-center"
+              : "w-[min(72vw,260px)] h-14 rounded-full px-1.5 py-1 flex items-center justify-between"
+          }`}
+        >
+          <TabButton
+            icon={<Home className="w-4 h-4" />}
+            label="Today"
+            active={activePage === "today"}
+            onClick={() => setActivePage("today")}
+            collapsed={isNavCollapsed}
+          />
+          {!isNavCollapsed && (
+            <>
+              <TabButton
+                icon={<BarChart3 className="w-4 h-4" />}
+                label="Fitness"
+                active={activePage === "fitness"}
+                onClick={() => setActivePage("fitness")}
+              />
+              <TabButton
+                icon={<HeartPulse className="w-4 h-4" />}
+                label="Biology"
+                active={activePage === "biology"}
+                onClick={() => setActivePage("biology")}
+              />
+            </>
+          )}
+        </nav>
 
-      <button
-        type="button"
-        onClick={() => setShowAssistant(prev => !prev)}
-        className="fixed bottom-5 right-4 z-[60] w-14 h-14 rounded-full bg-brand-card border border-brand-border text-brand-text shadow-[0_10px_24px_rgba(16,19,23,0.12)] flex items-center justify-center"
-        aria-label={showAssistant ? "Close AI panel" : "Open AI panel"}
-      >
-        {showAssistant ? <X className="w-5 h-5" /> : <Bot className="w-5 h-5" />}
-      </button>
+        <button
+          type="button"
+          onClick={() => setShowAssistant(prev => !prev)}
+          className="w-14 h-14 rounded-full bg-brand-card border border-brand-border text-brand-text shadow-[0_10px_24px_rgba(16,19,23,0.12)] flex items-center justify-center shrink-0"
+          aria-label={showAssistant ? "Close AI panel" : "Open AI panel"}
+        >
+          {showAssistant ? <X className="w-5 h-5" /> : <Bot className="w-5 h-5" />}
+        </button>
+      </div>
 
       {showAssistant && (
         <div className="fixed inset-0 z-[70] bg-black/40 backdrop-blur-[2px]">
